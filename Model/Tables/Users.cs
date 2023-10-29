@@ -44,5 +44,17 @@ namespace cotr.backend.Model.Tables
             Birthdate = birthdate;
             Affiliation = affiliation;
         }
+
+        public Users(int userId, string nickname, string email, string name, string surname, string? secondSurname, DateTime birthdate, string? affiliation)
+        {
+            UserId = userId;
+            Nickname = nickname;
+            Email = email;
+            Name = name;
+            Surname = surname;
+            SecondSurname = secondSurname;
+            Birthdate = birthdate;
+            Affiliation = affiliation;
+        }
     }
 }

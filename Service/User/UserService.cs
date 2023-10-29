@@ -2,16 +2,19 @@
 using cotr.backend.Model.Request;
 using cotr.backend.Model.Tables;
 using cotr.backend.Repository.User;
+using cotr.backend.Service.Encrypt;
 
 namespace cotr.backend.Service.User
 {
     public class UserService : IUserService
     {
         private readonly IUserRepostory _userRepostory;
+        private readonly IEncryptService _encryptService;
 
-        public UserService(IUserRepostory userRepostory)
+        public UserService(IUserRepostory userRepostory, IEncryptService encryptService)
         {
             _userRepostory = userRepostory;
+            _encryptService = encryptService;
         }
 
         public async Task<Users> ValidateUserAsync(LoginRequest request)
@@ -24,7 +27,7 @@ namespace cotr.backend.Service.User
 
                 if (!credential.IsActive) throw new ApiException(401, "Usuario bloqueado");
 
-                if (!BCrypt.Net.BCrypt.Verify(request.Password, credential.HashedPassword)) throw new ApiException(401, "Credenciales incorrectas");
+                if (!_encryptService.ValidatePassword(request.Password, credential.HashedPassword)) throw new ApiException(401, "Credenciales incorrectas");
                 return userData;
             }
             catch(Exception ex)
@@ -43,9 +46,10 @@ namespace cotr.backend.Service.User
 
                 Users savedUser = await _userRepostory.SaveNewUserAsync(new(request.Nickname, request.Email, request.Name, request.Surname, request.SecondSurname, request.Birthdate, request.Affiliation));
 
-                string salt = BCrypt.Net.BCrypt.GenerateSalt(4);
+                string salt = _encryptService.GenerateSalt();
+                string hashedpassword = _encryptService.EncryptPassword(request.Password, salt);
 
-                await _userRepostory.SaveNewCredentialAsync(new(savedUser.UserId, salt, BCrypt.Net.BCrypt.HashPassword(request.Password, salt), DateTime.Now, 0, null, null, true));
+                await _userRepostory.SaveNewCredentialAsync(new(savedUser.UserId, salt, hashedpassword, DateTime.Now, 0, null, null, true));
             }
             catch(Exception ex)
             {
