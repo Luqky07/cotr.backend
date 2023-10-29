@@ -6,7 +6,7 @@ namespace cotr.backend.Model.Tables
     public class UserCredential
     {
         [Key]
-        [ForeignKey("User")]
+        [ForeignKey("Users")]
         public int UserId { get; }
 
         [Required]

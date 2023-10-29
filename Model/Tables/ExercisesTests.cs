@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace cotr.backend.Model.Tables
 {
@@ -6,10 +7,25 @@ namespace cotr.backend.Model.Tables
     {
         [Key]
         public long TestId { get; }
+
+        [Required]
+        [ForeignKey("Exercises")]
         public long ExerciseId { get; }
-        public string Input { get; set; }
-        public string Output { get; set; }
+
+        [Required]
+        [MaxLength(1000)]
+        public string Input { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(1000)]
+        public string Output { get; set; } = string.Empty;
+
+        [Required]
         public DateTime AddDate { get; set; }
+
+        public Exercises Exercise { get; } = new();
+
+        public ExercisesTests() { }
 
         public ExercisesTests(long testId, long exerciseId, string input, string output, DateTime addDate)
         {

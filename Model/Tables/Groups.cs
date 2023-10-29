@@ -6,10 +6,22 @@ namespace cotr.backend.Model.Tables
     {
         [Key]
         public int GroupId { get; }
-        public string Name { get; set; }
+
+        [Required]
+        [MaxLength(50)]
+        public string Name { get; set; } = string.Empty;
+
+        [Required]
         public DateTime CreationDate { get; }
-        public string Description { get; set; }
+
+        [Required]
+        [MaxLength(1000)]
+        public string Description { get; set; } = string.Empty;
+
+        [Required]
         public bool IsPublic { get; set; }
+
+        public Groups() { }
 
         public Groups(int groupId, string name, DateTime creationDate, string description, bool isPublic)
         {

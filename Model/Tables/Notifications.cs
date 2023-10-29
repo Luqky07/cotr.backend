@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace cotr.backend.Model.Tables
 {
@@ -6,10 +7,20 @@ namespace cotr.backend.Model.Tables
     {
         [Key]
         public long NotificationId { get; }
-        public int UserId { get; set; }
-        public string Description { get; set; }
-        public bool IsSeen { get; set; }
 
+        [Required]
+        [ForeignKey("Users")]
+        public int UserId { get; set; }
+
+        [Required]
+        [MaxLength(1000)]
+        public string Description { get; set; } = string.Empty;
+        
+        [Required]
+        public bool IsSeen { get; set; }
+        public Users User { get; set; } = new();
+
+        public Notifications() { }
         public Notifications(long notificationId, int userId, string description, bool isSeen)
         {
             NotificationId = notificationId;

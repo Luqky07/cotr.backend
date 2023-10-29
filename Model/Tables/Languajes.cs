@@ -6,8 +6,16 @@ namespace cotr.backend.Model.Tables
     {
         [Key]
         public short LanguajeId { get; }
-        public string Name { get; }
-        public string Description { get; }
+
+        [Required]
+        [MaxLength(50)]
+        public string Name { get; } = string.Empty;
+
+        [Required]
+        [MaxLength(1000)]
+        public string Description { get; } = string.Empty;
+
+        public Languajes() { }
 
         public Languajes(short languajeId, string name, string description)
         {
