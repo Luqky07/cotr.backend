@@ -1,5 +1,6 @@
 using cotr.backend.Data;
 using cotr.backend.Model;
+using cotr.backend.Repository.User;
 using cotr.backend.Service.Token;
 using cotr.backend.Service.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,11 +13,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<CotrContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Cotr")));
 
-// Inyección de dependencias
+// Inyección de dependencias de servicios
 builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddTransient<IUserService, UserService>();
-//
 
+// Inyección de dependencias de repositorios
+builder.Services.AddScoped<IUserRepostory, UserRepository>();
+
+//Política de CORS
 builder.Services.AddCors(opt => opt.AddPolicy("AllowWebapp", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
 builder.Services.AddControllers();
@@ -67,7 +71,6 @@ if (builder.Environment.IsProduction())
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsProduction())
 {
     app.UseAuthentication();

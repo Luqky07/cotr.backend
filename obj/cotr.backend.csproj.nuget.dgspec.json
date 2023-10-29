@@ -71,10 +71,6 @@
               "target": "Package",
               "version": "[1.19.5, )"
             },
-            "Moq": {
-              "target": "Package",
-              "version": "[4.20.69, )"
-            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
@@ -82,10 +78,6 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.5.0, )"
-            },
-            "xunit": {
-              "target": "Package",
-              "version": "[2.5.3, )"
             }
           },
           "imports": [

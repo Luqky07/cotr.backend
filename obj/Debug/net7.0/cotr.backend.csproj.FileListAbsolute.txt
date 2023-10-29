@@ -9,7 +9,6 @@ C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\cotr.ba
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Azure.Core.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Azure.Identity.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\BCrypt.Net-Next.dll
-C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Castle.Core.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Humanizer.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Microsoft.AspNetCore.OpenApi.dll
@@ -33,7 +32,6 @@ C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Microso
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Microsoft.SqlServer.Server.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Microsoft.Win32.SystemEvents.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Mono.TextTemplating.dll
-C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Moq.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Newtonsoft.Json.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\Swashbuckle.AspNetCore.SwaggerGen.dll
@@ -47,10 +45,6 @@ C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\System.
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\System.Security.Permissions.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\System.Windows.Extensions.dll
-C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\xunit.abstractions.dll
-C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\xunit.assert.dll
-C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\xunit.core.dll
-C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\xunit.execution.dotnet.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
 C:\Users\sergi\Desktop\CodesOfTheRing\Code\cotr.backend\bin\Debug\net7.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
