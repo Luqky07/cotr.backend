@@ -6,16 +6,13 @@ using cotr.backend.Service.Token;
 using cotr.backend.Service.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.Drawing;
 
 namespace cotr.backend.Controllers
 {
     [ApiController]
     [Route("user")]
-    #if DEBUG
-        [AllowAnonymous]
-    #else
-        [Authorize]
-    #endif
     public class UsersController : Controller
     {
         private readonly ITokenService _tokenService;
@@ -28,6 +25,7 @@ namespace cotr.backend.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> ValidateCredentialsAsync(LoginRequest request)
         {
             try
@@ -43,6 +41,7 @@ namespace cotr.backend.Controllers
         }
 
         [HttpPost("signup")]
+        [AllowAnonymous]
         public async Task<IActionResult> SignupAsync(SignupRequest request)
         {
             try
@@ -50,6 +49,25 @@ namespace cotr.backend.Controllers
                 await _userService.SignupUserAsync(request);
 
                 return NoContent();
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
+            }
+        }
+        #if DEBUG
+            [AllowAnonymous]
+        #else
+            [Authorize(AuthenticationSchemes = "Refresh")]
+        #endif
+        [HttpGet("access-token")]
+        public IActionResult AccessToken()
+        {
+            try
+            {
+                HttpContext.Request.Headers.TryGetValue("Authorization", out var value);
+                if (value.IsNullOrEmpty()) throw new ApiException(400, "No se ha encontrado información del header");
+                return Ok(new TokenResponse(_tokenService.GetToken(true)));
             }
             catch (ApiException ex)
             {

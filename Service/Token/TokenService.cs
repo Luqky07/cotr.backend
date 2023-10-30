@@ -8,16 +8,16 @@ namespace cotr.backend.Service.Token
 {
     public class TokenService: ITokenService
     {
-        private IConfiguration configuration;
+        private IConfiguration _configuration;
 
         public TokenService(IConfiguration configuration)
         {
-            this.configuration = configuration;
+            _configuration = configuration;
         }
 
         public string GetToken(bool isAccess)
         {
-            Jwt tokenConfig = configuration.GetSection("JwtConfiguration:TokenApi").Get<Jwt>() ?? throw new ApiException(500, "Error al cargar la configuración del token JWT");
+            Jwt tokenConfig = _configuration.GetSection("JwtConfiguration:TokenApi").Get<Jwt>() ?? throw new ApiException(500, "Error al cargar la configuración del token JWT");
 
             var claims = new[]
                 {
@@ -31,7 +31,7 @@ namespace cotr.backend.Service.Token
                 tokenConfig.Issuer,
                 tokenConfig.Audience,
                 claims,
-                expires: isAccess ? DateTime.Now.AddMinutes(tokenConfig.DurationInMinutes) : DateTime.Now.AddMinutes((DateTime.Now - DateTime.Today).TotalMinutes),
+                expires: isAccess ? DateTime.Now.AddMinutes(tokenConfig.DurationInMinutesAccess) : DateTime.Now.AddDays(tokenConfig.DurationInDaysRefresh),
                 signingCredentials: signIn
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
