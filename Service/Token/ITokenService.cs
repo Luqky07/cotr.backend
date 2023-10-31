@@ -2,6 +2,6 @@
 {
     public interface ITokenService
     {
-        string GetToken(bool isAccess);
+        string GetToken(int userId, bool isAccess);
     }
 }

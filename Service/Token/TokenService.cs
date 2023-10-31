@@ -8,14 +8,14 @@ namespace cotr.backend.Service.Token
 {
     public class TokenService: ITokenService
     {
-        private IConfiguration _configuration;
+        private readonly IConfiguration _configuration;
 
         public TokenService(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
-        public string GetToken(bool isAccess)
+        public string GetToken(int userId, bool isAccess)
         {
             Jwt tokenConfig = _configuration.GetSection("JwtConfiguration:TokenApi").Get<Jwt>() ?? throw new ApiException(500, "Error al cargar la configuración del token JWT");
 
@@ -23,6 +23,7 @@ namespace cotr.backend.Service.Token
                 {
                     new Claim(JwtRegisteredClaimNames.Sid, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
                     new Claim("token_type", isAccess ? "Access" : "Refresh")
                 };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(isAccess ? tokenConfig.AccessKey : tokenConfig.RefreshKey));

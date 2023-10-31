@@ -2,12 +2,11 @@
 using cotr.backend.Model.Request;
 using cotr.backend.Model.Response;
 using cotr.backend.Model.Tables;
+using cotr.backend.Service.Header;
 using cotr.backend.Service.Token;
 using cotr.backend.Service.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.Drawing;
 
 namespace cotr.backend.Controllers
 {
@@ -17,11 +16,13 @@ namespace cotr.backend.Controllers
     {
         private readonly ITokenService _tokenService;
         private readonly IUserService _userService;
+        private readonly IHeaderService _headerService;
 
-        public UsersController(ITokenService tokenService, IUserService userService)
+        public UsersController(ITokenService tokenService, IUserService userService, IHeaderService headerService)
         {
             _tokenService = tokenService;
             _userService = userService;
+            _headerService = headerService;
         }
 
         [HttpPost("login")]
@@ -32,7 +33,7 @@ namespace cotr.backend.Controllers
             {
                 Users user = await _userService.ValidateUserAsync(request);
 
-                return Ok(new LoginResponse(user, _tokenService.GetToken(true), _tokenService.GetToken(false)));
+                return Ok(new LoginResponse(_tokenService.GetToken(user.UserId, true), _tokenService.GetToken(user.UserId, false)));
             }
             catch (ApiException ex)
             {
@@ -55,6 +56,7 @@ namespace cotr.backend.Controllers
                 return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
             }
         }
+
         #if DEBUG
             [AllowAnonymous]
         #else
@@ -65,9 +67,9 @@ namespace cotr.backend.Controllers
         {
             try
             {
-                HttpContext.Request.Headers.TryGetValue("Authorization", out var value);
-                if (value.IsNullOrEmpty()) throw new ApiException(400, "No se ha encontrado información del header");
-                return Ok(new TokenResponse(_tokenService.GetToken(true)));
+                int userId = _headerService.GetTokenSubUserId(HttpContext.Request.Headers);
+
+                return Ok(new TokenResponse(_tokenService.GetToken(userId, true)));
             }
             catch (ApiException ex)
             {
