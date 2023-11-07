@@ -1,9 +1,7 @@
-﻿using cotr.backend.Model.Response;
-
-namespace cotr.backend.Service.Token
+﻿namespace cotr.backend.Service.Token
 {
     public interface ITokenService
     {
-        string GetToken(bool isAccess);
+        string GetToken(int userId, bool isAccess);
     }
 }

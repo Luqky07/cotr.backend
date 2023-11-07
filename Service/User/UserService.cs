@@ -1,33 +1,33 @@
-﻿using cotr.backend.Data;
-using cotr.backend.Model;
+﻿using cotr.backend.Model;
 using cotr.backend.Model.Request;
-using cotr.backend.Model.Response;
 using cotr.backend.Model.Tables;
-using Microsoft.EntityFrameworkCore;
-using System.Text;
+using cotr.backend.Repository.User;
+using cotr.backend.Service.Encrypt;
 
 namespace cotr.backend.Service.User
 {
     public class UserService : IUserService
     {
-        private readonly CotrContext _context;
+        private readonly IUserRepostory _userRepostory;
+        private readonly IEncryptService _encryptService;
 
-        public UserService(CotrContext context)
+        public UserService(IUserRepostory userRepostory, IEncryptService encryptService)
         {
-            _context = context;
+            _userRepostory = userRepostory;
+            _encryptService = encryptService;
         }
 
         public async Task<Users> ValidateUserAsync(LoginRequest request)
         {
             try
             {
-                Users userData = await _context.Users.FirstOrDefaultAsync(x => x.Nickname.Equals(request.User) || x.Email.Equals(request.User)) ?? throw new ApiException(404, "Usuario no encontrado");
+                Users userData = await _userRepostory.GetUserByNicknameOrEmailAsync(request.User);
 
-                UserCredential credential = await _context.UserCredential.FirstAsync(x => x.UserId.Equals(userData.UserId));
+                UserCredential credential = await _userRepostory.GetUserCredentialByIdAsync(userData.UserId);
 
                 if (!credential.IsActive) throw new ApiException(401, "Usuario bloqueado");
 
-                if (!BCrypt.Net.BCrypt.Verify(request.Password, credential.HashedPassword)) throw new ApiException(401, "Credenciales incorrectas");
+                if (!_encryptService.ValidatePassword(request.Password, credential.HashedPassword)) throw new ApiException(401, "Credenciales incorrectas");
                 return userData;
             }
             catch(Exception ex)
@@ -36,38 +36,24 @@ namespace cotr.backend.Service.User
                 throw new ApiException(500, ex.Message);
             }
         }
-        public async Task<bool> SignupUserAsync(SignupRequest request)
+
+        public async Task SignupUserAsync(SignupRequest request)
         {
             try
             {
-                Users? userData = await _context.Users.FirstOrDefaultAsync(x => x.Nickname.Equals(request.Nickname) || x.Email.Equals(request.Email));
+                if ((await _userRepostory.GetUserByEmailAsync(request.Email)) != null) throw new ApiException(409, "El email ya existe");
+                if ((await _userRepostory.GetUserByNicknameAsync(request.Nickname)) != null) throw new ApiException(409, "El nombre de usuario ya existe");
 
-                if (userData != null)
-                {
-                    if (userData.Email.Equals(request.Email)) throw new ApiException(409, "El email ya existe");
-                    if (userData.Nickname.Equals(request.Nickname)) throw new ApiException(409, "El nombre de usuario ya existe");
-                }
+                Users savedUser = await _userRepostory.SaveNewUserAsync(new(request.Nickname, request.Email, request.Name, request.Surname, request.SecondSurname, request.Birthdate, request.Affiliation));
 
-                Users newUser = new(request.Nickname, request.Email, request.Name, request.Surname, request.SecondSurname, request.Birthdate, request.Affiliation);
+                string salt = _encryptService.GenerateSalt();
+                string hashedpassword = _encryptService.EncryptPassword(request.Password, salt);
 
-                var save = await _context.Users.AddAsync(newUser);
-
-                await _context.SaveChangesAsync();
-
-                string salt = BCrypt.Net.BCrypt.GenerateSalt(4);
-
-                int hashPassword = (BCrypt.Net.BCrypt.HashPassword(request.Password, salt)).Length;
-
-                UserCredential userCredential = new(save.Entity.UserId, salt, BCrypt.Net.BCrypt.HashPassword(request.Password, salt), DateTime.Now, 0, null, null, true);
-
-                await _context.UserCredential.AddAsync(userCredential);
-
-                await _context.SaveChangesAsync();
-
-                return true;
+                await _userRepostory.SaveNewCredentialAsync(new(savedUser.UserId, salt, hashedpassword, DateTime.Now, 0, null, null, true));
             }
             catch(Exception ex)
             {
+                if (ex is ApiException apiEx) throw apiEx;
                 throw new ApiException(500, ex.Message);
             }
         }

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace cotr.backend.Model.Tables
 {
@@ -37,6 +36,18 @@ namespace cotr.backend.Model.Tables
 
         public Users(string nickname, string email, string name, string surname, string? secondSurname, DateTime birthdate, string? affiliation)
         {
+            Nickname = nickname;
+            Email = email;
+            Name = name;
+            Surname = surname;
+            SecondSurname = secondSurname;
+            Birthdate = birthdate;
+            Affiliation = affiliation;
+        }
+
+        public Users(int userId, string nickname, string email, string name, string surname, string? secondSurname, DateTime birthdate, string? affiliation)
+        {
+            UserId = userId;
             Nickname = nickname;
             Email = email;
             Name = name;
