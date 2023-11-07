@@ -33,37 +33,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-if (builder.Environment.IsProduction())
+
+//JWT que elementos del Token se van a comprobar
+builder.Services.AddAuthentication(options =>
 {
-    //JWT que elementos del Token se van a comprobar
-    builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    }).AddJwtBearer("Access", o =>
-        {
-            var conf = builder.Configuration.GetSection("JwtConfiguration:TokenApi");
-            Jwt jwt = new(
-                conf.GetValue<string>("AccessKey") ?? throw new ApiException(500, "No se ha podido cargar la configuración del Token"),
-                conf.GetValue<string>("RefreshKey") ?? throw new ApiException(500, "No se ha podido cargar la configuración del Token"),
-                conf.GetValue<string>("Issuer") ?? throw new ApiException(500, "No se ha podido cargar la configuración del Token"),
-                conf.GetValue<string>("Audience") ?? throw new ApiException(500, "No se ha podido cargar la configuración del Token"),
-                conf.GetValue<double>("DurationInMinutesAccess"),
-                conf.GetValue<double>("DurationInDaysRefresh")
-            );
-            o.TokenValidationParameters = new TokenValidationParameters
-           {
-                ValidIssuer = jwt.Issuer,
-                ValidAudience = jwt.Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.AccessKey)),
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true
-            };
-        }
-    ).AddJwtBearer("Refresh", o =>
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer("Access", o =>
     {
         var conf = builder.Configuration.GetSection("JwtConfiguration:TokenApi");
         Jwt jwt = new(
@@ -74,66 +51,83 @@ if (builder.Environment.IsProduction())
             conf.GetValue<double>("DurationInMinutesAccess"),
             conf.GetValue<double>("DurationInDaysRefresh")
         );
-
-        //Jwt jwt = builder.Configuration.GetSection("JwtConfiguration:TokenApi").Get<Jwt>() ?? throw new ApiException(500, "No se ha podido cargar la configuración del token JWT");
         o.TokenValidationParameters = new TokenValidationParameters
-        {
+       {
             ValidIssuer = jwt.Issuer,
             ValidAudience = jwt.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.RefreshKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.AccessKey)),
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true
         };
     }
+).AddJwtBearer("Refresh", o =>
+{
+    var conf = builder.Configuration.GetSection("JwtConfiguration:TokenApi");
+    Jwt jwt = new(
+        conf.GetValue<string>("AccessKey") ?? throw new ApiException(500, "No se ha podido cargar la configuración del Token"),
+        conf.GetValue<string>("RefreshKey") ?? throw new ApiException(500, "No se ha podido cargar la configuración del Token"),
+        conf.GetValue<string>("Issuer") ?? throw new ApiException(500, "No se ha podido cargar la configuración del Token"),
+        conf.GetValue<string>("Audience") ?? throw new ApiException(500, "No se ha podido cargar la configuración del Token"),
+        conf.GetValue<double>("DurationInMinutesAccess"),
+        conf.GetValue<double>("DurationInDaysRefresh")
     );
 
-    builder.Services.AddSwaggerGen(c =>
+    //Jwt jwt = builder.Configuration.GetSection("JwtConfiguration:TokenApi").Get<Jwt>() ?? throw new ApiException(500, "No se ha podido cargar la configuración del token JWT");
+    o.TokenValidationParameters = new TokenValidationParameters
     {
-        c.SwaggerDoc("v1", new OpenApiInfo { Title = "cotr.backend", Version = "v1" });
-
-        var securityScheme = new OpenApiSecurityScheme
-        {
-            Name = "Authorization",
-            Description = "Enter JWT Bearer token **_only_**",
-            In = ParameterLocation.Header,
-            Type = SecuritySchemeType.Http,
-            Scheme = "bearer",
-            Reference = new OpenApiReference
-            {
-                Type = ReferenceType.SecurityScheme,
-                Id = "Bearer"
-            }
-        };
-        c.AddSecurityDefinition("Bearer", securityScheme);
-
-        var securityRequirement = new OpenApiSecurityRequirement
-        {
-            {
-                securityScheme,
-                new[] { "Bearer" }
-            }
-        };
-
-        c.AddSecurityRequirement(securityRequirement);
-    });
-
-    builder.Services.AddAuthorization();
+        ValidIssuer = jwt.Issuer,
+        ValidAudience = jwt.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.RefreshKey)),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true
+    };
 }
+);
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "cotr.backend", Version = "v1" });
+
+    var securityScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Description = "Enter JWT Bearer token **_only_**",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        Reference = new OpenApiReference
+        {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+        }
+    };
+    c.AddSecurityDefinition("Bearer", securityScheme);
+
+    var securityRequirement = new OpenApiSecurityRequirement
+    {
+        {
+            securityScheme,
+            new[] { "Bearer" }
+        }
+    };
+
+    c.AddSecurityRequirement(securityRequirement);
+});
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
-
-if (app.Environment.IsProduction())
-{
-    app.UseAuthentication();
-}
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
