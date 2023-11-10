@@ -56,13 +56,9 @@ namespace cotr.backend.Controllers
                 return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
             }
         }
-
-        #if DEBUG
-            [AllowAnonymous]
-        #else
-            [Authorize(AuthenticationSchemes = "Refresh")]
-        #endif
+            
         [HttpGet("access-token")]
+        [Authorize(AuthenticationSchemes = "Refresh")]
         public IActionResult AccessToken()
         {
             try

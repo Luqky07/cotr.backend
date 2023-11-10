@@ -3,6 +3,7 @@ using cotr.backend.Model.Request;
 using cotr.backend.Model.Tables;
 using cotr.backend.Repository.User;
 using cotr.backend.Service.Encrypt;
+using System.Text.RegularExpressions;
 
 namespace cotr.backend.Service.User
 {
@@ -41,8 +42,11 @@ namespace cotr.backend.Service.User
         {
             try
             {
-                if ((await _userRepostory.GetUserByEmailAsync(request.Email)) != null) throw new ApiException(409, "El email ya existe");
-                if ((await _userRepostory.GetUserByNicknameAsync(request.Nickname)) != null) throw new ApiException(409, "El nombre de usuario ya existe");
+                if (await _userRepostory.GetUserByEmailAsync(request.Email) != null) throw new ApiException(409, "El email ya existe");
+                if (await _userRepostory.GetUserByNicknameAsync(request.Nickname) != null) throw new ApiException(409, "El nombre de usuario ya existe");
+                if (request.Birthdate > DateTime.Today.AddYears(-16)) throw new ApiException(409, "No puedes registrarte en la plataforma si eres menor de 16 años");
+
+                if (!Regex.IsMatch(request.Password, "^(?=.*[a-zA-Z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,}$")) throw new ApiException(409, "La contraseña no cumple con los requisitos de seguridad. Su longitud debe ser de mínimo 8 caracteres y debe al menos contener una letrá en mayúscula y números");
 
                 Users savedUser = await _userRepostory.SaveNewUserAsync(new(request.Nickname, request.Email, request.Name, request.Surname, request.SecondSurname, request.Birthdate, request.Affiliation));
 
