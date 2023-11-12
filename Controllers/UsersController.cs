@@ -2,6 +2,7 @@
 using cotr.backend.Model.Request;
 using cotr.backend.Model.Response;
 using cotr.backend.Model.Tables;
+using cotr.backend.Service.Email;
 using cotr.backend.Service.Header;
 using cotr.backend.Service.Token;
 using cotr.backend.Service.User;
@@ -17,12 +18,14 @@ namespace cotr.backend.Controllers
         private readonly ITokenService _tokenService;
         private readonly IUserService _userService;
         private readonly IHeaderService _headerService;
+        private readonly IEmailService _emailService;
 
-        public UsersController(ITokenService tokenService, IUserService userService, IHeaderService headerService)
+        public UsersController(ITokenService tokenService, IUserService userService, IHeaderService headerService, IEmailService emailService)
         {
             _tokenService = tokenService;
             _userService = userService;
             _headerService = headerService;
+            _emailService = emailService;
         }
 
         [HttpPost("login")]
@@ -52,6 +55,40 @@ namespace cotr.backend.Controllers
                 return NoContent();
             }
             catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
+            }
+        }
+
+        [HttpPatch("change-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ChangePasswordAsync(UpdatePasswordRequest request)
+        {
+            try
+            {
+                await _userService.UpdatePasswordAsync(request);
+
+                return NoContent();
+            }
+            catch(ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
+            }
+        }
+
+        [HttpPost("change-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ChangePasswordRequestAsync(EmailUpdatePasswordRequest request)
+        {
+            try
+            {
+                EmailMessage message = await _userService.RecoverPasswordAsync(request.Email);
+
+                await _emailService.SendEmailAsync(message);
+
+                return NoContent();
+            }
+            catch(ApiException ex)
             {
                 return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
             }

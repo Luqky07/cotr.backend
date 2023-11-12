@@ -93,5 +93,56 @@ namespace cotr.backend.Repository.User
                 throw new ApiException(500, ex.Message);
             };
         }
+
+        public async Task UpdateCredentialsAsync (UserCredential credential)
+        {
+            try
+            {
+                _context.UserCredential.Update(credential);
+                await _context.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                throw new ApiException(500, ex.Message);
+            }
+        }
+
+        public async Task<Users> GetUserByIdAsync(int userId)
+        {
+            try
+            {
+                return await _context.Users.FirstOrDefaultAsync(x => x.UserId.Equals(userId)) ?? throw new ApiException(404, "Usuario no encontrado");
+            }
+            catch(Exception ex)
+            {
+                throw new ApiException(500, ex.Message);
+            }
+        }
+
+        public async Task UpdateUsersAsync(Users user)
+        {
+            try
+            {
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(500, ex.Message);
+            }
+        }
+
+        public async Task<UserCredential?> GetUserCredentialByResetToken(string resetToken)
+        {
+            try
+            {
+                return await _context.UserCredential.FirstOrDefaultAsync(x => (x.ResetToken ?? "").Equals(resetToken));
+            }
+            catch (Exception ex)
+            {
+                if (ex is ApiException apiEx) throw apiEx;
+                throw new ApiException(500, ex.Message);
+            };
+        }
     }
 }

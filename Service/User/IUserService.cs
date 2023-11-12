@@ -1,4 +1,5 @@
-﻿using cotr.backend.Model.Request;
+﻿using cotr.backend.Model;
+using cotr.backend.Model.Request;
 using cotr.backend.Model.Tables;
 
 namespace cotr.backend.Service.User
@@ -7,5 +8,7 @@ namespace cotr.backend.Service.User
     {
         Task<Users> ValidateUserAsync(LoginRequest request);
         Task SignupUserAsync(SignupRequest request);
+        Task UpdatePasswordAsync(UpdatePasswordRequest updatePassword);
+        Task<EmailMessage> RecoverPasswordAsync(string email);
     }
 }
