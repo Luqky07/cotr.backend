@@ -7,9 +7,9 @@
         public string Name { get; }
         public string Surname { get; }
         public string? SecondSurname { get; }
-        public DateTime Birthdate { get; }
+        public DateTime Birthdate { get; set; }
         public string? Affiliation { get; }
-        public string Password { get; }
+        public string Password { get; set; }
 
         public SignupRequest(string nickname, string email, string name, string surname, string? secondSurname, DateTime birthdate, string? affiliation, string password)
         {

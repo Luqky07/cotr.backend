@@ -10,5 +10,9 @@ namespace cotr.backend.Repository.User
         Task<UserCredential> GetUserCredentialByIdAsync(int userId);
         Task<Users> SaveNewUserAsync(Users newUser);
         Task SaveNewCredentialAsync(UserCredential newCredential);
+        Task UpdateCredentialsAsync(UserCredential credential);
+        Task<Users> GetUserByIdAsync(int userId);
+        Task UpdateUsersAsync(Users user);
+        Task<UserCredential?> GetUserCredentialByResetToken(string resetToken);
     }
 }

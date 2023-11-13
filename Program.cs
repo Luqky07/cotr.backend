@@ -1,6 +1,7 @@
 using cotr.backend.Data;
 using cotr.backend.Model;
 using cotr.backend.Repository.User;
+using cotr.backend.Service.Email;
 using cotr.backend.Service.Encrypt;
 using cotr.backend.Service.Header;
 using cotr.backend.Service.Token;
@@ -19,8 +20,9 @@ builder.Services.AddDbContext<CotrContext>(options =>
 // Inyección de dependencias de servicios
 builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddTransient<IUserService, UserService>();
-builder.Services.AddTransient<IEncryptService, EncryptService>();
+builder.Services.AddTransient<ISecutiryService, SecurityService>();
 builder.Services.AddTransient<IHeaderService, HeaderService>();
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 // Inyección de dependencias de repositorios
 builder.Services.AddScoped<IUserRepostory, UserRepository>();
