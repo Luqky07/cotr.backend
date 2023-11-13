@@ -20,7 +20,7 @@ builder.Services.AddDbContext<CotrContext>(options =>
 // Inyección de dependencias de servicios
 builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddTransient<IUserService, UserService>();
-builder.Services.AddTransient<IEncryptService, EncryptService>();
+builder.Services.AddTransient<ISecutiryService, SecurityService>();
 builder.Services.AddTransient<IHeaderService, HeaderService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
 

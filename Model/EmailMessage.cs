@@ -12,5 +12,18 @@
             Subject = subject;
             Body = body;
         }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is EmailMessage message &&
+                   To == message.To &&
+                   Subject == message.Subject &&
+                   Body == message.Body;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Body, Subject, To);
+        }
     }
 }
