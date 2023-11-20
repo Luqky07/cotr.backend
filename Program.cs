@@ -1,8 +1,11 @@
 using cotr.backend.Data;
 using cotr.backend.Model;
+using cotr.backend.Repository.Exercise;
 using cotr.backend.Repository.User;
+using cotr.backend.Service.Command;
 using cotr.backend.Service.Email;
 using cotr.backend.Service.Encrypt;
+using cotr.backend.Service.Exercise;
 using cotr.backend.Service.Header;
 using cotr.backend.Service.Token;
 using cotr.backend.Service.User;
@@ -23,9 +26,12 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<ISecutiryService, SecurityService>();
 builder.Services.AddTransient<IHeaderService, HeaderService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.AddTransient<IExerciseService, ExerciseService>();
+builder.Services.AddTransient<ICommandService, CommandService>();
 
 // Inyección de dependencias de repositorios
 builder.Services.AddScoped<IUserRepostory, UserRepository>();
+builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
 
 //Política de CORS
 builder.Services.AddCors(opt => opt.AddPolicy("AllowWebapp", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));

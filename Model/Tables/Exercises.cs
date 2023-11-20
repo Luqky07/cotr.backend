@@ -6,15 +6,15 @@ namespace cotr.backend.Model.Tables
     public class Exercises
     {
         [Key]
-        public long ExerciseId { get; }
+        public long ExerciseId { get; set; }
 
         [Required]
         [ForeignKey("Users")]
-        public int CreatorId { get; }
+        public int CreatorId { get; set; }
 
         [Required]
         [ForeignKey("Languajes")]
-        public short LanguajeId { get; }
+        public short LanguajeId { get; set; }
 
         [Required]
         [MaxLength(1000)]
@@ -27,14 +27,30 @@ namespace cotr.backend.Model.Tables
         public bool IsPublic { get; set; }
 
         [Required]
-        public DateTime CreationDate { get; }
+        [Column(TypeName = "datetime")]
+        public DateTime CreationDate { get; set; } = DateTime.UtcNow;
 
-        public Users Creator { get; } = new();
-        public Languajes Languaje { get; } = new();
+        [Required]
+        public string TestCode { get; set; } = string.Empty;
+
+        [Required]
+        public string TestClassName { get; set; } = string.Empty;
 
         public Exercises() { }
 
-        public Exercises(long exerciseId, int creatorId, short languajeId, string statement, bool isAproved, bool isPublic, DateTime creationDate)
+        public Exercises(int creatorId, short languajeId, string statement, bool isAproved, bool isPublic, DateTime creationDate, string testCode, string testClassName)
+        {
+            CreatorId = creatorId;
+            LanguajeId = languajeId;
+            Statement = statement;
+            IsAproved = isAproved;
+            IsPublic = isPublic;
+            CreationDate = creationDate;
+            TestCode = testCode;
+            TestClassName = testClassName;
+        }
+
+        public Exercises(long exerciseId, int creatorId, short languajeId, string statement, bool isAproved, bool isPublic, DateTime creationDate, string testCode, string testClassName)
         {
             ExerciseId = exerciseId;
             CreatorId = creatorId;
@@ -43,6 +59,8 @@ namespace cotr.backend.Model.Tables
             IsAproved = isAproved;
             IsPublic = isPublic;
             CreationDate = creationDate;
+            TestCode = testCode;
+            TestClassName = testClassName;
         }
     }
 }

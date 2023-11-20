@@ -6,24 +6,22 @@ namespace cotr.backend.Model.Tables
     public class Requests
     {
         [Key]
-        public long RequestId { get; }
+        public long RequestId { get; set; }
 
         [Required]
         [ForeignKey("Users")]
-        public int UserId { get; }
+        public int UserId { get; set; }
 
         [Required]
         [ForeignKey("Groups")]
-        public int GroupId { get; }
+        public int GroupId { get; set; }
 
         [Required]
-        public DateTime RequestDate { get; }
+        [Column(TypeName = "datetime")]
+        public DateTime RequestDate { get; set; } = DateTime.UtcNow;
 
         [Required]
         public bool IsResponded { get; set; }
-
-        public Users User { get; } = new();
-        public Groups Group { get; } = new();
 
         public Requests() { }
 

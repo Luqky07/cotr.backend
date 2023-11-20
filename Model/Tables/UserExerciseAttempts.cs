@@ -6,33 +6,40 @@ namespace cotr.backend.Model.Tables
     public class UserExerciseAttempts
     {
         [Key]
-        public long AttemptId { get; }
+        public long AttemptId { get; set; }
 
         [Required]
         [ForeignKey("Users")]
-        public int UserId { get; }
+        public int UserId { get; set; }
 
         [Required]
         [ForeignKey("Exercises")]
-        public long ExerciseId { get; }
+        public long ExerciseId { get; set; }
 
         [Required]
-        public DateTime AttemptDate { get; }
+        [Column(TypeName = "datetime")]
+        public DateTime AttemptDate { get; set; } = DateTime.UtcNow;
 
         [Required]
-        public bool IsCompleted { get; }
+        public bool IsCompleted { get; set; }
 
         [Required]
-        public string Code { get; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
 
         [Required]
-        public string Result { get; } = string.Empty;
-
-        public Users User { get; } = new();
-
-        public Exercises Exercise { get; } = new();
+        public string Result { get; set; } = string.Empty;
 
         public UserExerciseAttempts() { }
+
+        public UserExerciseAttempts(int userId, long exerciseId, DateTime attemptDate, bool isCompleted, string code, string result)
+        {
+            UserId = userId;
+            ExerciseId = exerciseId;
+            AttemptDate = attemptDate;
+            IsCompleted = isCompleted;
+            Code = code;
+            Result = result;
+        }
 
         public UserExerciseAttempts(long attemptId, int userId, long exerciseId, DateTime attemptDate, bool isCompleted, string code, string result)
         {

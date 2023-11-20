@@ -6,11 +6,11 @@ namespace cotr.backend.Model.Tables
     public class ExerciseResources
     {
         [Key]
-        public long ResourceId { get; }
+        public long ResourceId { get; set; }
 
         [Required]
         [ForeignKey("Exercises")]
-        public long ExerciseId { get; }
+        public long ExerciseId { get; set; }
 
         [Required]
         [MaxLength(256)]
@@ -18,8 +18,6 @@ namespace cotr.backend.Model.Tables
 
         [Required]
         public bool IsValidResource { get; set; }
-
-        public Exercises Exercise { get; } = new();
 
         public ExerciseResources() { }
 

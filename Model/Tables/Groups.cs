@@ -1,18 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace cotr.backend.Model.Tables
 {
     public class Groups
     {
         [Key]
-        public int GroupId { get; }
+        public int GroupId { get; set; }
 
         [Required]
         [MaxLength(50)]
         public string Name { get; set; } = string.Empty;
 
         [Required]
-        public DateTime CreationDate { get; }
+        [Column(TypeName = "datetime")]
+        public DateTime CreationDate { get; set; } = DateTime.UtcNow;
 
         [Required]
         [MaxLength(1000)]

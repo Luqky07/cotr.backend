@@ -144,5 +144,18 @@ namespace cotr.backend.Repository.User
                 throw new ApiException(500, ex.Message);
             };
         }
+
+        public async Task DeleteUserAsync(Users user)
+        {
+            try
+            {
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(500, ex.Message);
+            }
+        }
     }
 }

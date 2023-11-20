@@ -31,7 +31,7 @@ namespace cotr.backend.Service.User
 
             if (_secutiryService.ValidatePassword(request.Password, credential.HashedPassword))
             {
-                credential.LastLogin = DateTime.Now;
+                credential.LastLogin = DateTime.UtcNow;
                 if (credential.FailedLoginAttempts != 0) credential.FailedLoginAttempts = 0;
                 await _userRepostory.UpdateCredentialsAsync(credential);
                 return userData;
@@ -60,15 +60,23 @@ namespace cotr.backend.Service.User
 
             string salt = _secutiryService.GenerateSalt();
             string hashedpassword = _secutiryService.EncryptPassword(request.Password, salt);
-
-            await _userRepostory.SaveNewCredentialAsync(new(savedUser.UserId, salt, hashedpassword, DateTime.Now, 0, null, null, true));
+            try
+            {
+                await _userRepostory.SaveNewCredentialAsync(new(savedUser.UserId, salt, hashedpassword, DateTime.UtcNow, 0, null, null, true));
+            }
+            catch (ApiException ex)
+            {
+                await _userRepostory.DeleteUserAsync(savedUser);
+                throw ex;
+            }
+            
         }
 
         public async Task UpdatePasswordAsync(UpdatePasswordRequest updatePassword)
         {
             if (updatePassword.Token.Length < 15 || updatePassword.Token.Contains(" ")) throw new ApiException(409, "El token no es válido");
             UserCredential credentials = await _userRepostory.GetUserCredentialByResetToken(updatePassword.Token) ?? throw new ApiException(404, "No se ha encontrado un usuario asociado a ese token");
-            if (DateTime.Now > credentials.ResetTokenExpiration) throw new ApiException(401, "El token para realizar el cambio de cuenta ha expirado, solicite uno nuevo");
+            if (DateTime.UtcNow > credentials.ResetTokenExpiration) throw new ApiException(401, "El token para realizar el cambio de cuenta ha expirado, solicite uno nuevo");
             if (!PasswordRegex().IsMatch(updatePassword.Password)) throw new ApiException(409, "La contraseña no cumple con los requisitos de seguridad. Su longitud debe ser de mínimo 8 caracteres y debe al menos contener una letrá en mayúscula y números");
 
             string salt = _secutiryService.GenerateSalt();
@@ -96,7 +104,7 @@ namespace cotr.backend.Service.User
             UserCredential credential = await _userRepostory.GetUserCredentialByIdAsync(user.UserId);
 
             credential.ResetToken = token;
-            credential.ResetTokenExpiration = DateTime.Now.AddDays(1);
+            credential.ResetTokenExpiration = DateTime.UtcNow.AddDays(1);
 
             await _userRepostory.UpdateCredentialsAsync(credential);
 

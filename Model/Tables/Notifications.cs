@@ -6,7 +6,7 @@ namespace cotr.backend.Model.Tables
     public class Notifications
     {
         [Key]
-        public long NotificationId { get; }
+        public long NotificationId { get; set; }
 
         [Required]
         [ForeignKey("Users")]
@@ -18,7 +18,6 @@ namespace cotr.backend.Model.Tables
         
         [Required]
         public bool IsSeen { get; set; }
-        public Users User { get; set; } = new();
 
         public Notifications() { }
         public Notifications(long notificationId, int userId, string description, bool isSeen)

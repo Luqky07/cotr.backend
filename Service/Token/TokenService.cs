@@ -32,7 +32,7 @@ namespace cotr.backend.Service.Token
                 tokenConfig.Issuer,
                 tokenConfig.Audience,
                 claims,
-                expires: isAccess ? DateTime.Now.AddMinutes(tokenConfig.DurationInMinutesAccess) : DateTime.Now.AddDays(tokenConfig.DurationInDaysRefresh),
+                expires: isAccess ? DateTime.UtcNow.AddMinutes(tokenConfig.DurationInMinutesAccess) : DateTime.UtcNow.AddDays(tokenConfig.DurationInDaysRefresh),
                 signingCredentials: signIn
             );
             return new JwtSecurityTokenHandler().WriteToken(token);

@@ -6,21 +6,19 @@ namespace cotr.backend.Model.Tables
     public class GroupUsersBlocked
     {
         [Key]
-        public int BlockedId { get; }
+        public int BlockedId { get; set; }
 
         [Required]
         [ForeignKey("Users")]
-        public int UserId { get; }
+        public int UserId { get; set; }
 
         [Required]
         [ForeignKey("Groups")]
-        public int GroupId { get; }
+        public int GroupId { get; set; }
 
         [Required]
-        public DateTime BlockDate { get; }
-
-        public Users User { get; } = new();
-        public Groups Group { get; } = new();
+        [Column(TypeName = "datetime")]
+        public DateTime BlockDate { get; set; } = DateTime.UtcNow;
 
         public GroupUsersBlocked() { }
 

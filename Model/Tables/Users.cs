@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace cotr.backend.Model.Tables
 {
     public class Users
     {
         [Key]
-        public int UserId { get; }
+        public int UserId { get; set; }
 
         [Required]
         [MaxLength(50)]
@@ -27,7 +28,8 @@ namespace cotr.backend.Model.Tables
         public string? SecondSurname { get; set; } = string.Empty;
 
         [Required]
-        public DateTime Birthdate { get; set; }
+        [Column(TypeName = "datetime")]
+        public DateTime Birthdate { get; set; } = DateTime.UtcNow;
 
         [MaxLength(100)]
         public string? Affiliation { get; set; }

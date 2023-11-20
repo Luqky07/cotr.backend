@@ -5,11 +5,11 @@ namespace cotr.backend.Model.Tables
     public class Roles
     {
         [Key]
-        public short RoleId { get; }
+        public short RoleId { get; set; }
 
         [Required]
         [MaxLength(100)]
-        public string Description { get; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
 
         public Roles() { }
 

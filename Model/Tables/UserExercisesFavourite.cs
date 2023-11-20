@@ -6,23 +6,19 @@ namespace cotr.backend.Model.Tables
     public class UserExercisesFavourite
     {
         [Key]
-        public int FavoriteId { get; }
+        public int FavoriteId { get; set; }
 
         [Required]
         [ForeignKey("Users")]
-        public int UserId { get; }
+        public int UserId { get; set; }
 
         [Required]
         [ForeignKey("Exercises")]
-        public long ExerciseId { get; }
+        public long ExerciseId { get; set; }
 
         [Required]
-        public DateTime AddDate { get; }
-
-        public Users User { get; } = new();
-
-        public Exercises Exercise { get; } = new();
-
+        [Column(TypeName = "datetime")]
+        public DateTime AddDate { get; set; } = DateTime.UtcNow;
         public UserExercisesFavourite() { }
 
         public UserExercisesFavourite(int favoriteId, int userId, long exerciseId, DateTime addDate)

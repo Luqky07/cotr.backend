@@ -7,7 +7,7 @@ namespace cotr.backend.Model.Tables
     {
         [Key]
         [ForeignKey("Users")]
-        public int UserId { get; }
+        public int UserId { get; set; }
 
         [Required]
         [MaxLength(32)]
@@ -18,19 +18,20 @@ namespace cotr.backend.Model.Tables
         public string HashedPassword { get; set; } = string.Empty;
 
         [Required]
-        public DateTime LastLogin { get; set; }
+        [Column(TypeName = "datetime")]
+        public DateTime LastLogin { get; set; } = DateTime.UtcNow;
 
         [Required]
         public short FailedLoginAttempts { get; set; }
 
         [MaxLength(15)]
         public string? ResetToken { get; set; }
+
+        [Column(TypeName = "datetime")]
         public DateTime? ResetTokenExpiration { get; set; }
 
         [Required]
         public bool IsActive { get; set; }
-
-        public Users User { get; } = new();
 
         public UserCredential() { }
 

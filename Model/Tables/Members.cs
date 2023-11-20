@@ -6,26 +6,23 @@ namespace cotr.backend.Model.Tables
     public class Members
     {
         [Key]
-        public int MemberId { get; }
+        public int MemberId { get; set; }
 
         [Required]
         [ForeignKey("Users")]
-        public int UserId { get; }
+        public int UserId { get; set; }
 
         [Required]
         [ForeignKey("Groups")]
-        public int GroupId { get; }
+        public int GroupId { get; set; }
 
         [Required]
         [ForeignKey("Roles")]
         public short RoleId { get; set; }
 
         [Required]
-        public DateTime JoinDate { get; }
-
-        public Users User { get; } = new();
-        public Groups Group { get; } = new();
-        public Roles Role { get; } = new();
+        [Column(TypeName = "datetime")]
+        public DateTime JoinDate { get; set; } = DateTime.UtcNow;
 
         public Members() { }
 
