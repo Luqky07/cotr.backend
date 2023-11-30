@@ -17,8 +17,13 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<CotrContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Cotr")));
+builder.Services.AddDbContext<CotrContext>(
+    options => options.UseSqlServer
+    (
+        builder.Configuration.GetConnectionString("Cotr"), 
+        builder => builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)
+    )
+);
 
 // Inyección de dependencias de servicios
 builder.Services.AddTransient<ITokenService, TokenService>();

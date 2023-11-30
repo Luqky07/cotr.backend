@@ -23,12 +23,45 @@ namespace cotr.backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTestAsync(string? statement, string? author)
+        public async Task<IActionResult> GetExercisesAsync(string? statement, string? author)
         {
             try
             {
-                ExercisesResponse res = await _exerciseService.GetExercises(statement, author);
+                ExercisesResponse res = await _exerciseService.GetExercisesAsync(statement, author);
                 return Ok(res);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
+            }
+        }
+
+        [HttpGet("created")]
+        public async Task<IActionResult> GetTestCreatedAsync()
+        {
+            try
+            {
+                int userId = _headerService.GetTokenSubUserId(Request.Headers);
+
+                ExercisesResponse res = await _exerciseService.GetExercisesCreatedAsync(userId);
+                return Ok(res);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
+            }
+        }
+
+        [HttpPost("validate/{exerciseId}")]
+        public async Task<IActionResult> ValidateExerciseAsync(long exerciseId, AttemptRequest request)
+        {
+            try
+            {
+                int userId = _headerService.GetTokenSubUserId(Request.Headers);
+
+                await _exerciseService.TryExerciseAttemptAsync(userId, exerciseId, request);
+
+                return NoContent();
             }
             catch (ApiException ex)
             {

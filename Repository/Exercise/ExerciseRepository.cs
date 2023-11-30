@@ -24,7 +24,9 @@ namespace cotr.backend.Repository.Exercise
                         on exercise.CreatorId equals users.UserId
                     join languajes in _context.Languajes
                         on exercise.LanguajeId equals languajes.LanguajeId
+                    where exercise.IsAproved
                     select new ExerciseData(
+                        exercise.ExerciseId,
                         users.Nickname,
                         languajes.Name,
                         exercise.Statement,
@@ -33,6 +35,32 @@ namespace cotr.backend.Repository.Exercise
                 ).ToListAsync();
             }
             catch(Exception ex)
+            {
+                throw new ApiException(500, ex.Message);
+            }
+        }
+
+        public async Task<List<ExerciseData>> GetExercisesCreatedAsync(int userId)
+        {
+            try
+            {
+                return await (
+                    from exercise in _context.Exercises
+                    join users in _context.Users
+                        on exercise.CreatorId equals users.UserId
+                    join languajes in _context.Languajes
+                        on exercise.LanguajeId equals languajes.LanguajeId
+                    where exercise.CreatorId.Equals(userId)
+                    select new ExerciseData(
+                        exercise.ExerciseId,
+                        users.Nickname,
+                        languajes.Name,
+                        exercise.Statement,
+                        exercise.CreationDate
+                    )
+                ).ToListAsync();
+            }
+            catch (Exception ex)
             {
                 throw new ApiException(500, ex.Message);
             }
@@ -74,6 +102,19 @@ namespace cotr.backend.Repository.Exercise
                 await _context.SaveChangesAsync();
 
                 return res.Entity;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(500, ex.Message);
+            }
+        }
+
+        public async Task UpdateExerciseAsync(Exercises exercise)
+        {
+            try
+            {
+                _context.Exercises.Update(exercise);
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {

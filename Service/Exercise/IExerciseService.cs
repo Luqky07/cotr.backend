@@ -6,7 +6,8 @@ namespace cotr.backend.Service.Exercise
 {
     public interface IExerciseService
     {
-        Task<ExercisesResponse> GetExercises(string? statement, string? author);
+        Task<ExercisesResponse> GetExercisesAsync(string? statement, string? author);
+        Task<ExercisesResponse> GetExercisesCreatedAsync(int userId);
         Task<Exercises> CreateNewExercise(int userId, CreateExerciseRequest request);
         Task TryExerciseAttemptAsync(int userId, long exerciseId, AttemptRequest request);
     }

@@ -5,7 +5,6 @@ using cotr.backend.Model.Tables;
 using cotr.backend.Repository.Exercise;
 using cotr.backend.Service.Command;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 
 namespace cotr.backend.Service.Exercise
@@ -23,7 +22,7 @@ namespace cotr.backend.Service.Exercise
             _config = config;
         }
 
-        public async Task<ExercisesResponse> GetExercises(string? statement, string? author)
+        public async Task<ExercisesResponse> GetExercisesAsync(string? statement, string? author)
         {
             List<ExerciseData> exercises = await _exerciseRepository.GetExercisesAsync();
 
@@ -31,6 +30,14 @@ namespace cotr.backend.Service.Exercise
             if (author != null) exercises = exercises.Where(x => x.Author.Contains(author)).ToList();
 
             if ((statement != null || author != null) && exercises.IsNullOrEmpty()) throw new ApiException(404, "No se han encontrado ejercicios con los filtros aplicados");
+
+            return new(exercises);
+        }
+
+        public async Task<ExercisesResponse> GetExercisesCreatedAsync(int userId)
+        {
+            List<ExerciseData> exercises = await _exerciseRepository.GetExercisesCreatedAsync(userId);
+            if (exercises.IsNullOrEmpty()) throw new ApiException(404, "No se ha creado ningún test todavía");
 
             return new(exercises);
         }
@@ -87,10 +94,23 @@ namespace cotr.backend.Service.Exercise
             if (exec.Result.Contains("FAILURES!!!"))
             {
                 await _exerciseRepository.SaveAttemptAsync(new(userId, exerciseId, DateTime.UtcNow, false, request.Code, exec.Result));
-                throw new ApiException(400, $"Test Fail:\n{exec.Result}");
+                throw new ApiException(400, $"Ejercicio erroneo:\n{exec.Result}");
             }
 
             await _exerciseRepository.SaveAttemptAsync(new(userId, exerciseId, DateTime.UtcNow, true, request.Code, exec.Result));
+        }
+
+        public async Task ValidateExerciseAsync(int userId, long exerciseId, AttemptRequest request)
+        {
+            Exercises exerciseInfo = await _exerciseRepository.GetExerciseByIdAsync(exerciseId);
+
+            if (exerciseInfo.IsAproved) throw new ApiException(409, "El ejercicio ya está validado");
+            if (exerciseInfo.CreatorId != userId) throw new ApiException(409, "No se puede validar un ejercicio de otro usuario");
+
+            await TryExerciseAttemptAsync(userId, exerciseId, request);
+
+            exerciseInfo.IsAproved = true;
+            await _exerciseRepository.UpdateExerciseAsync(exerciseInfo);
         }
 
         private async Task<CommandRun> ExecuteJavaExerciseAsync(string exerciseRoute, string code, string testClassName, string testCode)
@@ -116,7 +136,7 @@ namespace cotr.backend.Service.Exercise
 
             CommandRun compile = _commandService.ExecuteCommand("javac", $"-cp \".:lib/*:src\" -d bin src/test/{testClassName}.java", exerciseRoute);
 
-            if (!compile.Error.IsNullOrEmpty()) throw new ApiException(400, $"Error en la compilación del test, el ejercicio está mal creado:\n{compile.Error}");
+            if (!compile.Error.IsNullOrEmpty()) throw new ApiException(400, $"Error en la compilación del test:\n{compile.Error}");
 
             return _commandService.ExecuteCommand("java", $"-cp \".:lib/*:bin\" org.junit.runner.JUnitCore test.{testClassName}", exerciseRoute);
         }
