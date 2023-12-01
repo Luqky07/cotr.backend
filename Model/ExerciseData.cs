@@ -1,20 +1,18 @@
-﻿namespace cotr.backend.Model
+﻿using cotr.backend.Model.DataModel;
+
+namespace cotr.backend.Model
 {
     public class ExerciseData
     {
-        public long ExerciseId { get; set; }
-        public string Author { get; set; }
-        public string Languaje { get; set; }
-        public string Statement { get; set; }
-        public DateTime CreationDate { get; set; }
+        public UserBasic Author { get; set; }
+        public ExerciseBasic Exercise { get; set; }
+        public LanguajeBasic Languaje { get; set; }
 
-        public ExerciseData(long exerciseId, string author, string languaje, string statement, DateTime creationDate)
+        public ExerciseData(UserBasic author, ExerciseBasic exercise, LanguajeBasic languaje)
         {
-            ExerciseId = exerciseId;
             Author = author;
+            Exercise = exercise;
             Languaje = languaje;
-            Statement = statement;
-            CreationDate = creationDate;
         }
     }
 }

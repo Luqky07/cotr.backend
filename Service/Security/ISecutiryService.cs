@@ -2,9 +2,8 @@
 {
     public interface ISecutiryService
     {
-        string EncryptPassword(string password, string salt);
-        string GenerateSalt();
+        string EncryptPassword(string password);
         bool ValidatePassword(string password, string hashedPassword);
-        string RandomToken();
+        string RandomTokenRecoverPassword();
     }
 }

@@ -3,6 +3,7 @@ using cotr.backend.Model.Request;
 using cotr.backend.Model.Response;
 using cotr.backend.Model.Tables;
 using cotr.backend.Repository.Exercise;
+using cotr.backend.Repository.Languaje;
 using cotr.backend.Service.Command;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.RegularExpressions;
@@ -14,21 +15,26 @@ namespace cotr.backend.Service.Exercise
         private readonly ICommandService _commandService;
         private readonly IExerciseRepository _exerciseRepository;
         private readonly IConfiguration _config;
+        private readonly ILanguajeRepository _languajeRepository;
         private readonly static string classPattern = @"public\s+class\s+(\w+)\s*{";
-        public ExerciseService(ICommandService commandService, IExerciseRepository exerciseRepository, IConfiguration config)
+        public ExerciseService(ICommandService commandService, IExerciseRepository exerciseRepository, IConfiguration config, ILanguajeRepository languajeRepository)
         {
             _commandService = commandService;
             _exerciseRepository = exerciseRepository;
             _config = config;
+            _languajeRepository = languajeRepository;
         }
 
-        public async Task<ExercisesResponse> GetExercisesAsync(string? statement, string? author)
+        public async Task<ExercisesResponse> GetExercisesAsync(int userId, string? statement, string? author, short? languajeId)
         {
             List<ExerciseData> exercises = await _exerciseRepository.GetExercisesAsync();
+            exercises = exercises.Where(x => !x.Author.UserId.Equals(userId)).ToList();
+            exercises = exercises.Where(x => x.Exercise.IsAproved).ToList();
 
-            if (statement != null) exercises = exercises.Where(x => x.Statement.Contains(statement)).ToList();
-            if (author != null) exercises = exercises.Where(x => x.Author.Contains(author)).ToList();
-
+            if (statement != null) exercises = exercises.Where(x => x.Exercise.Statement.Contains(statement)).ToList();
+            if (author != null) exercises = exercises.Where(x => x.Author.NickName.Contains(author)).ToList();
+            if (languajeId != null) exercises = exercises.Where(x => x.Languaje.LanguajeId.Equals(languajeId)).ToList();
+            
             if ((statement != null || author != null) && exercises.IsNullOrEmpty()) throw new ApiException(404, "No se han encontrado ejercicios con los filtros aplicados");
 
             return new(exercises);
@@ -36,8 +42,9 @@ namespace cotr.backend.Service.Exercise
 
         public async Task<ExercisesResponse> GetExercisesCreatedAsync(int userId)
         {
-            List<ExerciseData> exercises = await _exerciseRepository.GetExercisesCreatedAsync(userId);
-            if (exercises.IsNullOrEmpty()) throw new ApiException(404, "No se ha creado ningún test todavía");
+            List<ExerciseData> exercises = await _exerciseRepository.GetExercisesAsync();
+            exercises = exercises.Where(x => x.Author.UserId.Equals(userId)).ToList();
+            if (exercises.IsNullOrEmpty()) throw new ApiException(404, "No has creado ningún ejercicio todavía");
 
             return new(exercises);
         }
@@ -51,9 +58,11 @@ namespace cotr.backend.Service.Exercise
             return await _exerciseRepository.SaveExerciseAsync(new(userId, request.LanguajeId, request.Statement, false, true, DateTime.UtcNow, request.TestCode, match.Groups[1].Value));
         }
 
-        public async Task TryExerciseAttemptAsync(int userId, long exerciseId, AttemptRequest request)
+        public async Task TryExerciseAttemptAsync(int userId, long exerciseId, AttemptRequest request, bool isValidating)
         {
             Exercises exerciseInfo = await _exerciseRepository.GetExerciseByIdAsync(exerciseId);
+
+            if (!isValidating && !exerciseInfo.IsAproved) throw new ApiException(400, "No puedes intentar resolver un ejercicio que no esté validado");
 
             Dictionary<short, string> languajesDefault = new()
             {
@@ -107,10 +116,15 @@ namespace cotr.backend.Service.Exercise
             if (exerciseInfo.IsAproved) throw new ApiException(409, "El ejercicio ya está validado");
             if (exerciseInfo.CreatorId != userId) throw new ApiException(409, "No se puede validar un ejercicio de otro usuario");
 
-            await TryExerciseAttemptAsync(userId, exerciseId, request);
+            await TryExerciseAttemptAsync(userId, exerciseId, request, true);
 
             exerciseInfo.IsAproved = true;
             await _exerciseRepository.UpdateExerciseAsync(exerciseInfo);
+        }
+
+        public async Task<ExerciseInfoResponse> GetExerciseInfoByIdAsync(long exerciseId)
+        {
+            return await _exerciseRepository.GetExerciseInfoByIdAsync(exerciseId);
         }
 
         private async Task<CommandRun> ExecuteJavaExerciseAsync(string exerciseRoute, string code, string testClassName, string testCode)

@@ -27,7 +27,7 @@ namespace cotr.backend.Service.User
 
             UserCredential credential = await _userRepostory.GetUserCredentialByIdAsync(userData.UserId);
 
-            if (!credential.IsActive) throw new ApiException(401, "Usuario bloqueado");
+            if (!credential.IsActive) throw new ApiException(401, "Usuario bloqueado, para volver a acceder a la aplicación debe cambiar su contraseña");
 
             if (_secutiryService.ValidatePassword(request.Password, credential.HashedPassword))
             {
@@ -58,11 +58,10 @@ namespace cotr.backend.Service.User
 
             Users savedUser = await _userRepostory.SaveNewUserAsync(new(request.Nickname, request.Email, request.Name, request.Surname, request.SecondSurname, request.Birthdate, request.Affiliation));
 
-            string salt = _secutiryService.GenerateSalt();
-            string hashedpassword = _secutiryService.EncryptPassword(request.Password, salt);
+            string hashedpassword = _secutiryService.EncryptPassword(request.Password);
             try
             {
-                await _userRepostory.SaveNewCredentialAsync(new(savedUser.UserId, salt, hashedpassword, DateTime.UtcNow, 0, null, null, true));
+                await _userRepostory.SaveNewCredentialAsync(new(savedUser.UserId, hashedpassword, DateTime.UtcNow, 0, null, null, true));
             }
             catch (ApiException ex)
             {
@@ -79,13 +78,11 @@ namespace cotr.backend.Service.User
             if (DateTime.UtcNow > credentials.ResetTokenExpiration) throw new ApiException(401, "El token para realizar el cambio de cuenta ha expirado, solicite uno nuevo");
             if (!PasswordRegex().IsMatch(updatePassword.Password)) throw new ApiException(409, "La contraseña no cumple con los requisitos de seguridad. Su longitud debe ser de mínimo 8 caracteres y debe al menos contener una letrá en mayúscula y números");
 
-            string salt = _secutiryService.GenerateSalt();
-            string hashedpassword = _secutiryService.EncryptPassword(updatePassword.Password, salt);
+            string hashedpassword = _secutiryService.EncryptPassword(updatePassword.Password);
 
             credentials.ResetToken = null;
             credentials.ResetTokenExpiration = null;
             credentials.IsActive = true;
-            credentials.Salt = salt;
             credentials.HashedPassword = hashedpassword;
             credentials.FailedLoginAttempts = 0;
 
@@ -99,7 +96,7 @@ namespace cotr.backend.Service.User
             string token;
             do
             {
-                token = _secutiryService.RandomToken();
+                token = _secutiryService.RandomTokenRecoverPassword();
             } while (await _userRepostory.GetUserCredentialByResetToken(token) != null);
             UserCredential credential = await _userRepostory.GetUserCredentialByIdAsync(user.UserId);
 
@@ -111,6 +108,11 @@ namespace cotr.backend.Service.User
             string body = $"<p>Hola <strong>{user.Name}</strong>,<br>Puedes cambiar tu contraseña accediendo al siguiente enlace:</p><p><a href='https://blue-rock-0344a9c03.4.azurestaticapps.net/change-password?token={token}'>Cambia tu contraseña</a></p><p>Si no has solicitado el cambio ponte en contacto con nosotros</p>";
 
             return new(user.Email, "Cambia tu contraseña", body);
+        }
+
+        public async Task<Users> GetUserInfoByIdAsync(int userId)
+        {
+            return await _userRepostory.GetUserByIdAsync(userId);
         }
     }
 }

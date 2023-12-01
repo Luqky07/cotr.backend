@@ -23,12 +23,13 @@ namespace cotr.backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetExercisesAsync(string? statement, string? author)
+        public async Task<IActionResult> GetExercisesAsync(string? statement, string? author, short? languajeId)
         {
             try
             {
-                ExercisesResponse res = await _exerciseService.GetExercisesAsync(statement, author);
-                return Ok(res);
+                int userId = _headerService.GetTokenSubUserId(Request.Headers);
+
+                return Ok(await _exerciseService.GetExercisesAsync(userId, statement, author, languajeId));
             }
             catch (ApiException ex)
             {
@@ -52,6 +53,19 @@ namespace cotr.backend.Controllers
             }
         }
 
+        [HttpGet("{exerciseId}")]
+        public async Task<IActionResult> GetExerciseInfo(long exerciseId)
+        {
+            try
+            {
+                return Ok(await _exerciseService.GetExerciseInfoByIdAsync(exerciseId));
+            }
+            catch(ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
+            }
+        }
+
         [HttpPost("validate/{exerciseId}")]
         public async Task<IActionResult> ValidateExerciseAsync(long exerciseId, AttemptRequest request)
         {
@@ -59,7 +73,7 @@ namespace cotr.backend.Controllers
             {
                 int userId = _headerService.GetTokenSubUserId(Request.Headers);
 
-                await _exerciseService.TryExerciseAttemptAsync(userId, exerciseId, request);
+                await _exerciseService.ValidateExerciseAsync(userId, exerciseId, request);
 
                 return NoContent();
             }
@@ -91,7 +105,7 @@ namespace cotr.backend.Controllers
             {
                 int userId = _headerService.GetTokenSubUserId(Request.Headers);
 
-                await _exerciseService.TryExerciseAttemptAsync(userId, exerciseId, request);
+                await _exerciseService.TryExerciseAttemptAsync(userId, exerciseId, request, false);
 
                 return NoContent();
             }

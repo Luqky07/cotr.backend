@@ -10,5 +10,6 @@ namespace cotr.backend.Service.User
         Task SignupUserAsync(SignupRequest request);
         Task UpdatePasswordAsync(UpdatePasswordRequest updatePassword);
         Task<EmailMessage> RecoverPasswordAsync(string email);
+        Task<Users> GetUserInfoByIdAsync(int userId);
     }
 }

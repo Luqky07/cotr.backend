@@ -10,10 +10,6 @@ namespace cotr.backend.Model.Tables
         public int UserId { get; set; }
 
         [Required]
-        [MaxLength(32)]
-        public string Salt { get; set; } = string.Empty;
-
-        [Required]
         [MaxLength(60)]
         public string HashedPassword { get; set; } = string.Empty;
 
@@ -35,10 +31,9 @@ namespace cotr.backend.Model.Tables
 
         public UserCredential() { }
 
-        public UserCredential(int userId, string salt, string hashedPassword, DateTime lastLogin, short failedLoginAttempts, string? resetToken, DateTime? resetTokenExpiration, bool isActive)
+        public UserCredential(int userId, string hashedPassword, DateTime lastLogin, short failedLoginAttempts, string? resetToken, DateTime? resetTokenExpiration, bool isActive)
         {
             UserId = userId;
-            Salt = salt;
             HashedPassword = hashedPassword;
             LastLogin = lastLogin;
             FailedLoginAttempts = failedLoginAttempts;
