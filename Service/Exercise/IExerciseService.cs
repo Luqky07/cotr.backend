@@ -11,6 +11,6 @@ namespace cotr.backend.Service.Exercise
         Task<Exercises> CreateNewExercise(int userId, CreateExerciseRequest request);
         Task TryExerciseAttemptAsync(int userId, long exerciseId, AttemptRequest request, bool isValidating);
         Task ValidateExerciseAsync(int userId, long exerciseId, AttemptRequest request);
-        Task<ExerciseInfoResponse> GetExerciseInfoByIdAsync(long exerciseId);
+        Task<ExerciseDataResponse> GetExerciseInfoByIdAsync(int userId, long exerciseId);
     }
 }

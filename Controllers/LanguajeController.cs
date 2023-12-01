@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace cotr.backend.Controllers
 {
     [ApiController]
-    [Route("languaje")]
+    [Route("languajes")]
     [Authorize(AuthenticationSchemes = "Access")]
     public class LanguajeController : Controller
     {

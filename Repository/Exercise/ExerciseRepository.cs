@@ -15,7 +15,7 @@ namespace cotr.backend.Repository.Exercise
             _context = context;
         }
 
-        public async Task<List<ExerciseData>> GetExercisesAsync()
+        public async Task<List<ExerciseDataResponse>> GetExercisesAsync()
         {
             try
             {
@@ -25,10 +25,10 @@ namespace cotr.backend.Repository.Exercise
                         on exercise.CreatorId equals users.UserId
                     join languajes in _context.Languajes
                         on exercise.LanguajeId equals languajes.LanguajeId
-                    select new ExerciseData(
+                    select new ExerciseDataResponse(
                         new(users.UserId, users.Nickname),
                         new(exercise.ExerciseId, exercise.Statement, exercise.IsAproved, exercise.CreationDate),
-                        new(languajes.LanguajeId, languajes.Name)
+                        new(languajes.LanguajeId, languajes.Name, languajes.CodeStart)
                     )
                 ).ToListAsync();
             }
@@ -94,23 +94,21 @@ namespace cotr.backend.Repository.Exercise
             }
         }
 
-        public async Task<ExerciseInfoResponse> GetExerciseInfoByIdAsync(long exerciseId)
+        public async Task<ExerciseDataResponse> GetExerciseInfoByIdAsync(long exerciseId)
         {
             try
             {
                 return await (
                     from exercise in _context.Exercises
-                    join languaje in _context.Languajes
-                        on exercise.LanguajeId equals languaje.LanguajeId
                     join users in _context.Users
                         on exercise.CreatorId equals users.UserId
+                    join languajes in _context.Languajes
+                        on exercise.LanguajeId equals languajes.LanguajeId
                     where exercise.ExerciseId.Equals(exerciseId)
-                    select new ExerciseInfoResponse(
-                        exercise.ExerciseId,
-                        languaje.Name,
-                        languaje.CodeStart,
-                        exercise.Statement,
-                        users.Nickname
+                    select new ExerciseDataResponse(
+                        new(users.UserId, users.Nickname),
+                        new(exercise.ExerciseId, exercise.Statement, exercise.IsAproved, exercise.CreationDate),
+                        new(languajes.LanguajeId, languajes.Name, languajes.CodeStart)
                     )
                 ).FirstOrDefaultAsync() ?? throw new ApiException(404, "Ejercicio no encontrado");
             }

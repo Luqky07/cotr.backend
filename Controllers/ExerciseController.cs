@@ -58,7 +58,9 @@ namespace cotr.backend.Controllers
         {
             try
             {
-                return Ok(await _exerciseService.GetExerciseInfoByIdAsync(exerciseId));
+                int userId = _headerService.GetTokenSubUserId(Request.Headers);
+
+                return Ok(await _exerciseService.GetExerciseInfoByIdAsync(userId, exerciseId));
             }
             catch(ApiException ex)
             {

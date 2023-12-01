@@ -27,7 +27,7 @@ namespace cotr.backend.Service.Exercise
 
         public async Task<ExercisesResponse> GetExercisesAsync(int userId, string? statement, string? author, short? languajeId)
         {
-            List<ExerciseData> exercises = await _exerciseRepository.GetExercisesAsync();
+            List<ExerciseDataResponse> exercises = await _exerciseRepository.GetExercisesAsync();
             exercises = exercises.Where(x => !x.Author.UserId.Equals(userId)).ToList();
             exercises = exercises.Where(x => x.Exercise.IsAproved).ToList();
 
@@ -42,7 +42,7 @@ namespace cotr.backend.Service.Exercise
 
         public async Task<ExercisesResponse> GetExercisesCreatedAsync(int userId)
         {
-            List<ExerciseData> exercises = await _exerciseRepository.GetExercisesAsync();
+            List<ExerciseDataResponse> exercises = await _exerciseRepository.GetExercisesAsync();
             exercises = exercises.Where(x => x.Author.UserId.Equals(userId)).ToList();
             if (exercises.IsNullOrEmpty()) throw new ApiException(404, "No has creado ningún ejercicio todavía");
 
@@ -122,9 +122,13 @@ namespace cotr.backend.Service.Exercise
             await _exerciseRepository.UpdateExerciseAsync(exerciseInfo);
         }
 
-        public async Task<ExerciseInfoResponse> GetExerciseInfoByIdAsync(long exerciseId)
+        public async Task<ExerciseDataResponse> GetExerciseInfoByIdAsync(int userId, long exerciseId)
         {
-            return await _exerciseRepository.GetExerciseInfoByIdAsync(exerciseId);
+            ExerciseDataResponse exercise = await _exerciseRepository.GetExerciseInfoByIdAsync(exerciseId);
+
+            if (!exercise.Exercise.IsAproved && !exercise.Author.UserId.Equals(userId)) throw new ApiException(409, "No se puede obtener información del ejercicio si el autor no lo ha resuelto");
+
+            return exercise;
         }
 
         private async Task<CommandRun> ExecuteJavaExerciseAsync(string exerciseRoute, string code, string testClassName, string testCode)
