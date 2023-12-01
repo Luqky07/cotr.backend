@@ -68,23 +68,6 @@ namespace cotr.backend.Controllers
             }
         }
 
-        [HttpPost("validate/{exerciseId}")]
-        public async Task<IActionResult> ValidateExerciseAsync(long exerciseId, AttemptRequest request)
-        {
-            try
-            {
-                int userId = _headerService.GetTokenSubUserId(Request.Headers);
-
-                await _exerciseService.ValidateExerciseAsync(userId, exerciseId, request);
-
-                return NoContent();
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
-            }
-        }
-
         [HttpPost]
         public async Task<IActionResult> CreateNewExerciseAsync(CreateExerciseRequest request)
         {
@@ -107,7 +90,7 @@ namespace cotr.backend.Controllers
             {
                 int userId = _headerService.GetTokenSubUserId(Request.Headers);
 
-                await _exerciseService.TryExerciseAttemptAsync(userId, exerciseId, request, false);
+                await _exerciseService.TryExerciseAttemptAsync(userId, exerciseId, request);
 
                 return NoContent();
             }

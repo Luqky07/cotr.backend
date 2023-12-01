@@ -9,8 +9,7 @@ namespace cotr.backend.Service.Exercise
         Task<ExercisesResponse> GetExercisesAsync(int userId, string? statement, string? author, short? languajeId);
         Task<ExercisesResponse> GetExercisesCreatedAsync(int userId);
         Task<Exercises> CreateNewExercise(int userId, CreateExerciseRequest request);
-        Task TryExerciseAttemptAsync(int userId, long exerciseId, AttemptRequest request, bool isValidating);
-        Task ValidateExerciseAsync(int userId, long exerciseId, AttemptRequest request);
+        Task TryExerciseAttemptAsync(int userId, long exerciseId, AttemptRequest request);
         Task<ExerciseDataResponse> GetExerciseInfoByIdAsync(int userId, long exerciseId);
     }
 }

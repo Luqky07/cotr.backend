@@ -15,14 +15,12 @@ namespace cotr.backend.Service.Exercise
         private readonly ICommandService _commandService;
         private readonly IExerciseRepository _exerciseRepository;
         private readonly IConfiguration _config;
-        private readonly ILanguajeRepository _languajeRepository;
         private readonly static string classPattern = @"public\s+class\s+(\w+)\s*{";
-        public ExerciseService(ICommandService commandService, IExerciseRepository exerciseRepository, IConfiguration config, ILanguajeRepository languajeRepository)
+        public ExerciseService(ICommandService commandService, IExerciseRepository exerciseRepository, IConfiguration config)
         {
             _commandService = commandService;
             _exerciseRepository = exerciseRepository;
             _config = config;
-            _languajeRepository = languajeRepository;
         }
 
         public async Task<ExercisesResponse> GetExercisesAsync(int userId, string? statement, string? author, short? languajeId)
@@ -58,11 +56,11 @@ namespace cotr.backend.Service.Exercise
             return await _exerciseRepository.SaveExerciseAsync(new(userId, request.LanguajeId, request.Statement, false, true, DateTime.UtcNow, request.TestCode, match.Groups[1].Value));
         }
 
-        public async Task TryExerciseAttemptAsync(int userId, long exerciseId, AttemptRequest request, bool isValidating)
+        public async Task TryExerciseAttemptAsync(int userId, long exerciseId, AttemptRequest request)
         {
             Exercises exerciseInfo = await _exerciseRepository.GetExerciseByIdAsync(exerciseId);
 
-            if (!isValidating && !exerciseInfo.IsAproved) throw new ApiException(400, "No puedes intentar resolver un ejercicio que no esté validado");
+            if (!exerciseInfo.IsAproved && !exerciseInfo.CreatorId.Equals(userId)) throw new ApiException(400, "No puedes intentar resolver un ejercicio que no esté validado");
 
             Dictionary<short, string> languajesDefault = new()
             {
@@ -107,19 +105,11 @@ namespace cotr.backend.Service.Exercise
             }
 
             await _exerciseRepository.SaveAttemptAsync(new(userId, exerciseId, DateTime.UtcNow, true, request.Code, exec.Result));
-        }
-
-        public async Task ValidateExerciseAsync(int userId, long exerciseId, AttemptRequest request)
-        {
-            Exercises exerciseInfo = await _exerciseRepository.GetExerciseByIdAsync(exerciseId);
-
-            if (exerciseInfo.IsAproved) throw new ApiException(409, "El ejercicio ya está validado");
-            if (exerciseInfo.CreatorId != userId) throw new ApiException(409, "No se puede validar un ejercicio de otro usuario");
-
-            await TryExerciseAttemptAsync(userId, exerciseId, request, true);
-
-            exerciseInfo.IsAproved = true;
-            await _exerciseRepository.UpdateExerciseAsync(exerciseInfo);
+            if (!exerciseInfo.IsAproved && exerciseInfo.CreatorId.Equals(userId))
+            {
+                exerciseInfo.IsAproved = true;
+                await _exerciseRepository.UpdateExerciseAsync(exerciseInfo);
+            }
         }
 
         public async Task<ExerciseDataResponse> GetExerciseInfoByIdAsync(int userId, long exerciseId)
