@@ -30,5 +30,18 @@ namespace cotr.backend.Controllers
                 return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
             }
         }
+
+        [HttpGet("{languajeId}")]
+        public async Task<IActionResult> GetLanguajeByIdAsync(short languajeId)
+        {
+            try
+            {
+                return Ok(await _languajeService.GetLanguajeByIdAsync(languajeId));
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
+            }
+        }
     }
 }
