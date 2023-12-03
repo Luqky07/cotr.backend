@@ -3,7 +3,6 @@ using cotr.backend.Model.Request;
 using cotr.backend.Model.Response;
 using cotr.backend.Model.Tables;
 using cotr.backend.Repository.Exercise;
-using cotr.backend.Repository.Languaje;
 using cotr.backend.Service.Command;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.RegularExpressions;
@@ -23,7 +22,7 @@ namespace cotr.backend.Service.Exercise
             _config = config;
         }
 
-        public async Task<ExercisesResponse> GetExercisesAsync(int userId, string? statement, string? author, short? languajeId)
+        public async Task<ExercisesResponse> GetExercisesAsync(int userId, string? statement, string? author, short? languajeId, int? creatorId)
         {
             List<ExerciseDataResponse> exercises = await _exerciseRepository.GetExercisesAsync();
             exercises = exercises.Where(x => !x.Author.UserId.Equals(userId)).ToList();
@@ -32,8 +31,7 @@ namespace cotr.backend.Service.Exercise
             if (statement != null) exercises = exercises.Where(x => x.Exercise.Statement.Contains(statement)).ToList();
             if (author != null) exercises = exercises.Where(x => x.Author.NickName.Contains(author)).ToList();
             if (languajeId != null) exercises = exercises.Where(x => x.Languaje.LanguajeId.Equals(languajeId)).ToList();
-            
-            if ((statement != null || author != null) && exercises.IsNullOrEmpty()) throw new ApiException(404, "No se han encontrado ejercicios con los filtros aplicados");
+            if (creatorId != null) exercises = exercises.Where(x => x.Author.UserId.Equals(creatorId)).ToList();
 
             return new(exercises);
         }
