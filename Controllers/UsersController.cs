@@ -110,22 +110,6 @@ namespace cotr.backend.Controllers
             }
         }
 
-        [HttpGet("profile")]
-        [Authorize(AuthenticationSchemes = "Access")]
-        public async Task<IActionResult> GetProfileInfoAsync()
-        {
-            try
-            {
-                int userId = _headerService.GetTokenSubUserId(HttpContext.Request.Headers);
-
-                return Ok(await _userService.GetUserInfoByIdAsync(userId));
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
-            }
-        }
-
         [HttpGet("profile/{userIdWanted}")]
         [Authorize(AuthenticationSchemes = "Access")]
         public async Task<IActionResult> GetProfileInfoByIdAsync(int userIdWanted)

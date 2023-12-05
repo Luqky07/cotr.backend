@@ -1,4 +1,5 @@
 ﻿using cotr.backend.Model;
+using cotr.backend.Model.DataModel;
 using cotr.backend.Model.Request;
 using cotr.backend.Model.Response;
 using cotr.backend.Service.Exercise;
@@ -37,22 +38,6 @@ namespace cotr.backend.Controllers
             }
         }
 
-        [HttpGet("created")]
-        public async Task<IActionResult> GetTestCreatedAsync()
-        {
-            try
-            {
-                int userId = _headerService.GetTokenSubUserId(Request.Headers);
-
-                ExercisesResponse res = await _exerciseService.GetExercisesCreatedAsync(userId);
-                return Ok(res);
-            }
-            catch (ApiException ex)
-            {
-                return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
-            }
-        }
-
         [HttpGet("{exerciseId}")]
         public async Task<IActionResult> GetExerciseInfo(long exerciseId)
         {
@@ -63,6 +48,21 @@ namespace cotr.backend.Controllers
                 return Ok(await _exerciseService.GetExerciseInfoByIdAsync(userId, exerciseId));
             }
             catch(ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
+            }
+        }
+
+        [HttpGet("{exerciseId}/test")]
+        public async Task<IActionResult> GetExerciseTestInfo(long exerciseId)
+        {
+            try
+            {
+                int userId = _headerService.GetTokenSubUserId(Request.Headers);
+
+                return Ok(await _exerciseService.GetExerciseTestInfoByIdAsync(userId, exerciseId));
+            }
+            catch (ApiException ex)
             {
                 return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
             }
@@ -91,6 +91,24 @@ namespace cotr.backend.Controllers
                 int userId = _headerService.GetTokenSubUserId(Request.Headers);
 
                 await _exerciseService.TryExerciseAttemptAsync(userId, exerciseId, request);
+
+                return NoContent();
+            }
+            catch (ApiException ex)
+            {
+                if (ex is TryException tryEx) return StatusCode(ex.StatusCode, new ApiExceptionResponse(tryEx));
+                return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
+            }
+        }
+
+        [HttpPost("{exerciseId}/test")]
+        public async Task<IActionResult> EditTestAsync(long exerciseId, EditExerciseRequest request)
+        {
+            try
+            {
+                int userId = _headerService.GetTokenSubUserId(Request.Headers);
+
+                await _exerciseService.EditExerciseTestAsync(userId, exerciseId, request);
 
                 return NoContent();
             }

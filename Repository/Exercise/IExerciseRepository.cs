@@ -11,5 +11,6 @@ namespace cotr.backend.Repository.Exercise
         Task<UserExerciseAttempts> SaveAttemptAsync(UserExerciseAttempts attempt);
         Task UpdateExerciseAsync(Exercises exercise);
         Task<ExerciseDataResponse> GetExerciseInfoByIdAsync(long exerciseId);
+        Task<TestDataResponse> GetExerciseTestInfoByIdAsync(long exerciseId);
     }
 }

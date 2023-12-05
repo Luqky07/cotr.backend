@@ -1,4 +1,5 @@
 ﻿using cotr.backend.Model;
+using cotr.backend.Model.DataModel;
 using cotr.backend.Model.Request;
 using cotr.backend.Model.Response;
 using cotr.backend.Model.Tables;
@@ -25,8 +26,7 @@ namespace cotr.backend.Service.Exercise
         public async Task<ExercisesResponse> GetExercisesAsync(int userId, string? statement, string? author, short? languajeId, int? creatorId)
         {
             List<ExerciseDataResponse> exercises = await _exerciseRepository.GetExercisesAsync();
-            exercises = exercises.Where(x => !x.Author.UserId.Equals(userId)).ToList();
-            exercises = exercises.Where(x => x.Exercise.IsAproved).ToList();
+            exercises = exercises.Where(x => x.Exercise.IsAproved || x.Author.UserId.Equals(userId)).ToList();
 
             if (statement != null) exercises = exercises.Where(x => x.Exercise.Statement.Contains(statement)).ToList();
             if (author != null) exercises = exercises.Where(x => x.Author.NickName.Contains(author)).ToList();
@@ -94,12 +94,12 @@ namespace cotr.backend.Service.Exercise
             if (!exec.Error.IsNullOrEmpty()) 
             {
                 await _exerciseRepository.SaveAttemptAsync(new(userId, exerciseId, DateTime.UtcNow, false, request.Code, exec.Error));
-                throw new ApiException(400, $"Error en la ejecucuión del test:\n{exec.Error}");
+                throw new TryException("Fallo en el test", exec.Error);
             };
             if (exec.Result.Contains("FAILURES!!!"))
             {
                 await _exerciseRepository.SaveAttemptAsync(new(userId, exerciseId, DateTime.UtcNow, false, request.Code, exec.Result));
-                throw new ApiException(400, $"Ejercicio erroneo:\n{exec.Result}");
+                throw new TryException("Fallo en el ejercicio", exec.Result);
             }
 
             await _exerciseRepository.SaveAttemptAsync(new(userId, exerciseId, DateTime.UtcNow, true, request.Code, exec.Result));
@@ -119,6 +119,32 @@ namespace cotr.backend.Service.Exercise
             return exercise;
         }
 
+        public async Task<TestDataResponse> GetExerciseTestInfoByIdAsync(int userId, long exerciseId)
+        {
+            TestDataResponse exercise = await _exerciseRepository.GetExerciseTestInfoByIdAsync(exerciseId);
+
+            if (exercise.Test.IsAproved) throw new ApiException(409, "No se puede obtener información del test de un ejercicio resuelto");
+            if (!exercise.Author.UserId.Equals(userId)) throw new ApiException(409, "No se puede obtener información del test de un ejercicio creado por otro usuario");
+
+            return exercise;
+        }
+
+        public async Task EditExerciseTestAsync(int userId, long exerciseId, EditExerciseRequest request)
+        {
+            Exercises exercise = await _exerciseRepository.GetExerciseByIdAsync(exerciseId);
+
+            if (exercise.IsAproved) throw new ApiException(409, "No puedes editar un ejercicio ya validado");
+            if (!exercise.CreatorId.Equals(userId)) throw new ApiException(409, "No se puede editar un ejercicio si no eres su autor");
+
+            if (exercise.TestCode.Equals(request.TestCode) && exercise.Statement.Equals(request.Statement)) throw new ApiException(409, "Para editar un ejercicio el código o el enunciado debe ser diferente del que ya estaba guardado");
+
+            exercise.TestCode = request.TestCode;
+            exercise.Statement = request.Statement;
+
+            await _exerciseRepository.UpdateExerciseAsync(exercise);
+        }
+
+        #region Funciones Privadas
         private async Task<CommandRun> ExecuteJavaExerciseAsync(string exerciseRoute, string code, string testClassName, string testCode)
         {
             Match match = Regex.Match(code, classPattern);
@@ -165,5 +191,6 @@ namespace cotr.backend.Service.Exercise
                 File.Copy(file, destFile, true);
             }
         }
+        #endregion
     }
 }

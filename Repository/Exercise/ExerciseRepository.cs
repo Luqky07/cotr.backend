@@ -118,5 +118,30 @@ namespace cotr.backend.Repository.Exercise
                 throw new ApiException(500, ex.Message);
             }
         }
+
+        public async Task<TestDataResponse> GetExerciseTestInfoByIdAsync(long exerciseId)
+        {
+            try
+            {
+                return await (
+                    from exercise in _context.Exercises
+                    join users in _context.Users
+                        on exercise.CreatorId equals users.UserId
+                    join languajes in _context.Languajes
+                        on exercise.LanguajeId equals languajes.LanguajeId
+                    where exercise.ExerciseId.Equals(exerciseId)
+                    select new TestDataResponse(
+                        new(users.UserId, users.Nickname),
+                        new(exercise.ExerciseId, exercise.Statement, exercise.TestCode, exercise.IsAproved),
+                        new(languajes.LanguajeId, languajes.Name, languajes.CodeStart)
+                    )
+                ).FirstOrDefaultAsync() ?? throw new ApiException(404, "Ejercicio no encontrado");
+            }
+            catch (Exception ex)
+            {
+                if (ex is ApiException apiEx) throw apiEx;
+                throw new ApiException(500, ex.Message);
+            }
+        }
     }
 }
