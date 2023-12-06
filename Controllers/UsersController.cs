@@ -50,7 +50,9 @@ namespace cotr.backend.Controllers
         {
             try
             {
-                await _userService.SignupUserAsync(request);
+                EmailMessage message = await _userService.SignupUserAsync(request);
+
+                await _emailService.SendEmailAsync(message);
 
                 return NoContent();
             }
@@ -116,8 +118,23 @@ namespace cotr.backend.Controllers
         {
             try
             {
-                //int userId = _headerService.GetTokenSubUserId(HttpContext.Request.Headers);
                 return Ok(await _userService.GetUserInfoByIdAsync(userIdWanted));
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new ApiExceptionResponse(ex));
+            }
+        }
+
+        [HttpPatch("verify")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyEmailAsync(VerifyEmailRequest request)
+        {
+            try
+            {
+                await _userService.VerifyEmailAsync(request);
+
+                return NoContent();
             }
             catch (ApiException ex)
             {

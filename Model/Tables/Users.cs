@@ -17,6 +17,14 @@ namespace cotr.backend.Model.Tables
         public string Email { get; set; } = string.Empty;
 
         [Required]
+        public bool EmailIsVerified { get; set; }
+        [MaxLength(15)]
+        public string? EmailToken { get; set; }
+
+        [Column(TypeName = "datetime")]
+        public DateTime? EmailTokenExpiration { get; set; }
+
+        [Required]
         [MaxLength(50)]
         public string Name { get; set; } = string.Empty;
 
@@ -36,10 +44,13 @@ namespace cotr.backend.Model.Tables
 
         public Users() { }
 
-        public Users(string nickname, string email, string name, string surname, string? secondSurname, DateTime birthdate, string? affiliation)
+        public Users(string nickname, string email, bool emailIsVerified, string emailToken, DateTime emailTokenExpiration, string name, string surname, string? secondSurname, DateTime birthdate, string? affiliation)
         {
             Nickname = nickname;
             Email = email;
+            EmailIsVerified = emailIsVerified;
+            EmailToken = emailToken;
+            EmailTokenExpiration = emailTokenExpiration;
             Name = name;
             Surname = surname;
             SecondSurname = secondSurname;
@@ -47,11 +58,12 @@ namespace cotr.backend.Model.Tables
             Affiliation = affiliation;
         }
 
-        public Users(int userId, string nickname, string email, string name, string surname, string? secondSurname, DateTime birthdate, string? affiliation)
+        public Users(int userId, string nickname, string email, bool emailIsVerified,string name, string surname, string? secondSurname, DateTime birthdate, string? affiliation)
         {
             UserId = userId;
             Nickname = nickname;
             Email = email;
+            EmailIsVerified = emailIsVerified;
             Name = name;
             Surname = surname;
             SecondSurname = secondSurname;

@@ -101,7 +101,7 @@ namespace cotr.backend.Controllers
             }
         }
 
-        [HttpPost("{exerciseId}/test")]
+        [HttpPatch("{exerciseId}/test")]
         public async Task<IActionResult> EditTestAsync(long exerciseId, EditExerciseRequest request)
         {
             try

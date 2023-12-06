@@ -15,5 +15,6 @@ namespace cotr.backend.Repository.User
         Task UpdateUsersAsync(Users user);
         Task<UserCredential?> GetUserCredentialByResetToken(string resetToken);
         Task DeleteUserAsync(Users user);
+        Task<Users?> GetUserByEmailToken(string emailToken);
     }
 }

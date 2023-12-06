@@ -111,7 +111,7 @@ namespace cotr.backend.Repository.User
         {
             try
             {
-                return await _context.Users.FirstOrDefaultAsync(x => x.UserId.Equals(userId)) ?? throw new ApiException(404, "Usuario no encontrado");
+                return await _context.Users.FirstOrDefaultAsync(x => x.UserId.Equals(userId) && x.EmailIsVerified) ?? throw new ApiException(404, "Usuario no encontrado");
             }
             catch(Exception ex)
             {
@@ -156,6 +156,19 @@ namespace cotr.backend.Repository.User
             {
                 throw new ApiException(500, ex.Message);
             }
+        }
+
+        public async Task<Users?> GetUserByEmailToken(string emailToken)
+        {
+            try
+            {
+                return await _context.Users.FirstOrDefaultAsync(x => (x.EmailToken ?? "a").Equals(emailToken));
+            }
+            catch (Exception ex)
+            {
+                if (ex is ApiException apiEx) throw apiEx;
+                throw new ApiException(500, ex.Message);
+            };
         }
     }
 }

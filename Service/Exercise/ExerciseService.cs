@@ -36,15 +36,6 @@ namespace cotr.backend.Service.Exercise
             return new(exercises);
         }
 
-        public async Task<ExercisesResponse> GetExercisesCreatedAsync(int userId)
-        {
-            List<ExerciseDataResponse> exercises = await _exerciseRepository.GetExercisesAsync();
-            exercises = exercises.Where(x => x.Author.UserId.Equals(userId)).ToList();
-            if (exercises.IsNullOrEmpty()) throw new ApiException(404, "No has creado ningún ejercicio todavía");
-
-            return new(exercises);
-        }
-
         public async Task<Exercises> CreateNewExercise(int userId, CreateExerciseRequest request)
         {
             Match match = Regex.Match(request.TestCode, classPattern);
@@ -108,6 +99,8 @@ namespace cotr.backend.Service.Exercise
                 exerciseInfo.IsAproved = true;
                 await _exerciseRepository.UpdateExerciseAsync(exerciseInfo);
             }
+
+            Directory.Delete(userExerciseRoute, true);
         }
 
         public async Task<ExerciseDataResponse> GetExerciseInfoByIdAsync(int userId, long exerciseId)
@@ -123,7 +116,6 @@ namespace cotr.backend.Service.Exercise
         {
             TestDataResponse exercise = await _exerciseRepository.GetExerciseTestInfoByIdAsync(exerciseId);
 
-            if (exercise.Test.IsAproved) throw new ApiException(409, "No se puede obtener información del test de un ejercicio resuelto");
             if (!exercise.Author.UserId.Equals(userId)) throw new ApiException(409, "No se puede obtener información del test de un ejercicio creado por otro usuario");
 
             return exercise;
@@ -133,7 +125,6 @@ namespace cotr.backend.Service.Exercise
         {
             Exercises exercise = await _exerciseRepository.GetExerciseByIdAsync(exerciseId);
 
-            if (exercise.IsAproved) throw new ApiException(409, "No puedes editar un ejercicio ya validado");
             if (!exercise.CreatorId.Equals(userId)) throw new ApiException(409, "No se puede editar un ejercicio si no eres su autor");
 
             if (exercise.TestCode.Equals(request.TestCode) && exercise.Statement.Equals(request.Statement)) throw new ApiException(409, "Para editar un ejercicio el código o el enunciado debe ser diferente del que ya estaba guardado");
