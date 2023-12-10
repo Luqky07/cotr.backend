@@ -38,11 +38,16 @@ namespace cotr.backend.Service.Exercise
 
         public async Task<Exercises> CreateNewExercise(int userId, CreateExerciseRequest request)
         {
-            Match match = Regex.Match(request.TestCode, classPattern);
+            string className = "test";
+            if(request.LanguajeId == 1)
+            {
+                Match match = Regex.Match(request.TestCode, classPattern);
 
-            if (!match.Success) throw new ApiException(409, "El código del test no tiene una clase válida");
+                if (!match.Success) throw new ApiException(409, "El código del test no tiene una clase válida");
+                className = match.Groups[1].Value;
+            }
 
-            return await _exerciseRepository.SaveExerciseAsync(new(userId, request.LanguajeId, request.Statement, false, true, DateTime.UtcNow, request.TestCode, match.Groups[1].Value));
+            return await _exerciseRepository.SaveExerciseAsync(new(userId, request.LanguajeId, request.Statement, false, true, DateTime.UtcNow, request.TestCode, className));
         }
 
         public async Task TryExerciseAttemptAsync(int userId, long exerciseId, AttemptRequest request)
@@ -51,12 +56,11 @@ namespace cotr.backend.Service.Exercise
 
             if (!exerciseInfo.IsAproved && !exerciseInfo.CreatorId.Equals(userId)) throw new ApiException(400, "No puedes intentar resolver un ejercicio que no esté validado");
 
-            Dictionary<short, string> languajesDefault = new()
-            {
-                {1, "java_default" }
-            };
+            string defaultDirectory;
 
-            if (!languajesDefault.TryGetValue(exerciseInfo.LanguajeId, out string? defaultDirectory) || defaultDirectory is null) throw new ApiException(500, "No se ha encontrado la ruta por defecto para ese lenguaje de programación");
+            if (exerciseInfo.LanguajeId == 1) defaultDirectory = "java_default";
+            else if (exerciseInfo.LanguajeId == 2) defaultDirectory = "javascript_default";
+            else throw new ApiException(500, "No se ha encontrado la ruta por defecto para ese lenguaje de programación");
 
             string defaultRoute = _config.GetValue<string>("ExercisesRoute") ?? throw new ApiException(500, "No se ha podido cargar la configuración de la ruta de ejercicios");
 
@@ -80,7 +84,10 @@ namespace cotr.backend.Service.Exercise
                 {1, async () => await ExecuteJavaExerciseAsync(userExerciseRoute, request.Code, exerciseInfo.TestClassName, exerciseInfo.TestCode)}
             };
 
-            CommandRun exec = await functions[exerciseInfo.LanguajeId].Invoke();
+            CommandRun exec;
+            if (exerciseInfo.LanguajeId == 1) exec = await ExecuteJavaExerciseAsync(userExerciseRoute, request.Code, exerciseInfo.TestClassName, exerciseInfo.TestCode);
+            else if (exerciseInfo.LanguajeId == 2) exec = await ExecuteJavaScriptExerciseAsync(userExerciseRoute, request.Code, exerciseInfo.TestCode);
+            else throw new ApiException(500, "No se ha encontrado la función para ejecutar ese lenguaje de programación");
 
             if (!exec.Error.IsNullOrEmpty()) 
             {
@@ -162,6 +169,24 @@ namespace cotr.backend.Service.Exercise
             if (!compile.Error.IsNullOrEmpty()) throw new ApiException(400, $"Error en la compilación del test:\n{compile.Error}");
 
             return _commandService.ExecuteCommand("java", $"-cp \".:lib/*:bin\" org.junit.runner.JUnitCore test.{testClassName}", exerciseRoute);
+        }
+
+        private async Task<CommandRun> ExecuteJavaScriptExerciseAsync(string exerciseRoute, string code, string testCode)
+        {
+
+            string codePath = $"{exerciseRoute}/test.js";
+
+            try
+            {
+                File.Create(codePath).Close();
+                await File.WriteAllTextAsync(codePath, $"{code}\n\n{testCode}");
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(500, ex.Message);
+            }
+
+            return _commandService.ExecuteCommand("npm", "test", exerciseRoute);
         }
 
         private static void CopyDirectory(string sourceDir, string destDir)

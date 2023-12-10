@@ -9,6 +9,9 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y openjdk-17-jdk
 
+RUN apt-get update && \
+    apt-get install -y nodejs npm
+
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["cotr.backend.csproj", "."]
@@ -23,12 +26,19 @@ RUN dotnet publish "cotr.backend.csproj" -c Release -o /app/publish /p:UseAppHos
 FROM base AS final
 COPY --from=publish /app/publish .
 
-WORKDIR /app
+WORKDIR /
 RUN mkdir -p /exercises/java_default/bin/code
 RUN mkdir -p /exercises/java_default/bin/test
 RUN mkdir -p /exercises/java_default/lib
 RUN mkdir -p /exercises/java_default/src/code
 RUN mkdir -p /exercises/java_default/src/test
+
+RUN mkdir -p /exercises/javascript_default
+WORKDIR /exercises/javascript_default
+RUN npm init -y
+RUN npm install mocha chai sinon --save-dev
+
+WORKDIR /app
 
 COPY java_test_files/hamcrest-core-1.3.jar /exercises/java_default/lib/
 COPY java_test_files/junit-4.13.2.jar /exercises/java_default/lib/
