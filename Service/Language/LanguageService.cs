@@ -20,8 +20,8 @@ namespace cotr.backend.Service.Language
 
         public async Task<Languages> GetLanguageByIdAsync(short languageId)
         {
-            List<Languages> languajes = await _languageRepository.GetLanguagesAsync();
-            return languajes.FirstOrDefault(x => x.LanguageId.Equals(languageId)) ?? throw new ApiException(404, "No disponemos de información para ese lenguaje");
+            List<Languages> languages = await _languageRepository.GetLanguagesAsync();
+            return languages.FirstOrDefault(x => x.LanguageId.Equals(languageId)) ?? throw new ApiException(404, "No disponemos de información para ese lenguaje");
         }
     }
 }

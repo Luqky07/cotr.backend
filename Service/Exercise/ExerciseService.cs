@@ -24,14 +24,14 @@ namespace cotr.backend.Service.Exercise
             _config = config;
         }
 
-        public async Task<ExercisesResponse> GetExercisesAsync(int userId, string? statement, string? author, short? languajeId, int? creatorId)
+        public async Task<ExercisesResponse> GetExercisesAsync(int userId, string? statement, string? author, short? languageId, int? creatorId)
         {
             List<ExerciseDataResponse> exercises = await _exerciseRepository.GetExercisesAsync();
             exercises = exercises.Where(x => x.Exercise.IsAproved || x.Author.UserId.Equals(userId)).ToList();
 
             if (statement != null) exercises = exercises.Where(x => x.Exercise.Statement.Contains(statement)).ToList();
             if (author != null) exercises = exercises.Where(x => x.Author.NickName.Contains(author)).ToList();
-            if (languajeId != null) exercises = exercises.Where(x => x.Language.LanguageId.Equals(languajeId)).ToList();
+            if (languageId != null) exercises = exercises.Where(x => x.Language.LanguageId.Equals(languageId)).ToList();
             if (creatorId != null) exercises = exercises.Where(x => x.Author.UserId.Equals(creatorId)).ToList();
 
             return new(exercises);
@@ -59,8 +59,8 @@ namespace cotr.backend.Service.Exercise
 
             string defaultDirectory;
 
-            if (exerciseInfo.LanguajeId == 1) defaultDirectory = "java_default";
-            else if (exerciseInfo.LanguajeId == 2) defaultDirectory = "javascript_default";
+            if (exerciseInfo.LanguageId == 1) defaultDirectory = "java_default";
+            else if (exerciseInfo.LanguageId == 2) defaultDirectory = "javascript_default";
             else throw new ApiException(500, "No se ha encontrado la ruta por defecto para ese lenguaje de programación");
 
             string defaultRoute = _config.GetValue<string>("ExercisesRoute") ?? throw new ApiException(500, "No se ha podido cargar la configuración de la ruta de ejercicios");
@@ -86,8 +86,8 @@ namespace cotr.backend.Service.Exercise
             };
 
             CommandRun exec;
-            if (exerciseInfo.LanguajeId == 1) exec = await ExecuteJavaExerciseAsync(userExerciseRoute, request.Code, exerciseInfo.TestClassName, exerciseInfo.TestCode);
-            else if (exerciseInfo.LanguajeId == 2) exec = await ExecuteJavaScriptExerciseAsync(userExerciseRoute, request.Code, exerciseInfo.TestCode);
+            if (exerciseInfo.LanguageId == 1) exec = await ExecuteJavaExerciseAsync(userExerciseRoute, request.Code, exerciseInfo.TestClassName, exerciseInfo.TestCode);
+            else if (exerciseInfo.LanguageId == 2) exec = await ExecuteJavaScriptExerciseAsync(userExerciseRoute, request.Code, exerciseInfo.TestCode);
             else throw new ApiException(500, "No se ha encontrado la función para ejecutar ese lenguaje de programación");
 
             if (!exec.Error.IsNullOrEmpty()) 

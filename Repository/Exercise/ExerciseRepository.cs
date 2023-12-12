@@ -23,12 +23,12 @@ namespace cotr.backend.Repository.Exercise
                     from exercise in _context.Exercises
                     join users in _context.Users
                         on exercise.CreatorId equals users.UserId
-                    join languajes in _context.Languages
-                        on exercise.LanguajeId equals languajes.LanguageId
+                    join languages in _context.Languages
+                        on exercise.LanguageId equals languages.LanguageId
                     select new ExerciseDataResponse(
                         new(users.UserId, users.Nickname),
                         new(exercise.ExerciseId, exercise.Statement, exercise.IsAproved, exercise.CreationDate),
-                        new(languajes.LanguageId, languajes.Name, languajes.CodeStart)
+                        new(languages.LanguageId, languages.Name, languages.CodeStart)
                     )
                 ).ToListAsync();
             }
@@ -102,13 +102,13 @@ namespace cotr.backend.Repository.Exercise
                     from exercise in _context.Exercises
                     join users in _context.Users
                         on exercise.CreatorId equals users.UserId
-                    join languajes in _context.Languages
-                        on exercise.LanguajeId equals languajes.LanguageId
+                    join languages in _context.Languages
+                        on exercise.LanguageId equals languages.LanguageId
                     where exercise.ExerciseId.Equals(exerciseId)
                     select new ExerciseDataResponse(
                         new(users.UserId, users.Nickname),
                         new(exercise.ExerciseId, exercise.Statement, exercise.IsAproved, exercise.CreationDate),
-                        new(languajes.LanguageId, languajes.Name, languajes.CodeStart)
+                        new(languages.LanguageId, languages.Name, languages.CodeStart)
                     )
                 ).FirstOrDefaultAsync() ?? throw new ApiException(404, "Ejercicio no encontrado");
             }
@@ -127,13 +127,13 @@ namespace cotr.backend.Repository.Exercise
                     from exercise in _context.Exercises
                     join users in _context.Users
                         on exercise.CreatorId equals users.UserId
-                    join languajes in _context.Languages
-                        on exercise.LanguajeId equals languajes.LanguageId
+                    join languages in _context.Languages
+                        on exercise.LanguageId equals languages.LanguageId
                     where exercise.ExerciseId.Equals(exerciseId)
                     select new TestDataResponse(
                         new(users.UserId, users.Nickname),
                         new(exercise.ExerciseId, exercise.Statement, exercise.TestCode, exercise.IsAproved),
-                        new(languajes.LanguageId, languajes.Name, languajes.CodeStart)
+                        new(languages.LanguageId, languages.Name, languages.CodeStart)
                     )
                 ).FirstOrDefaultAsync() ?? throw new ApiException(404, "Ejercicio no encontrado");
             }

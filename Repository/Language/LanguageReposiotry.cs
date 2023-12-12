@@ -26,11 +26,11 @@ namespace cotr.backend.Repository.Language
             }
         }
 
-        public async Task<Languages> GetLanguageById(short languajeId)
+        public async Task<Languages> GetLanguageById(short languageId)
         {
             try
             {
-                return await _context.Languages.FirstOrDefaultAsync(x => x.LanguageId.Equals(languajeId)) ?? throw new ApiException(404, "No se ha encontrado ese lenguaje de programación");
+                return await _context.Languages.FirstOrDefaultAsync(x => x.LanguageId.Equals(languageId)) ?? throw new ApiException(404, "No se ha encontrado ese lenguaje de programación");
             }
             catch (Exception ex)
             {

@@ -13,8 +13,8 @@ namespace cotr.backend.Model.Tables
         public int CreatorId { get; set; }
 
         [Required]
-        [ForeignKey("Languajes")]
-        public short LanguajeId { get; set; }
+        [ForeignKey("Languages")]
+        public short LanguageId { get; set; }
 
         [Required]
         [MaxLength(1000)]
@@ -38,10 +38,10 @@ namespace cotr.backend.Model.Tables
 
         public Exercises() { }
 
-        public Exercises(int creatorId, short languajeId, string statement, bool isAproved, bool isPublic, DateTime creationDate, string testCode, string testClassName)
+        public Exercises(int creatorId, short languageId, string statement, bool isAproved, bool isPublic, DateTime creationDate, string testCode, string testClassName)
         {
             CreatorId = creatorId;
-            LanguajeId = languajeId;
+            LanguageId = languageId;
             Statement = statement;
             IsAproved = isAproved;
             IsPublic = isPublic;
@@ -50,11 +50,11 @@ namespace cotr.backend.Model.Tables
             TestClassName = testClassName;
         }
 
-        public Exercises(long exerciseId, int creatorId, short languajeId, string statement, bool isAproved, bool isPublic, DateTime creationDate, string testCode, string testClassName)
+        public Exercises(long exerciseId, int creatorId, short languageId, string statement, bool isAproved, bool isPublic, DateTime creationDate, string testCode, string testClassName)
         {
             ExerciseId = exerciseId;
             CreatorId = creatorId;
-            LanguajeId = languajeId;
+            LanguageId = languageId;
             Statement = statement;
             IsAproved = isAproved;
             IsPublic = isPublic;
