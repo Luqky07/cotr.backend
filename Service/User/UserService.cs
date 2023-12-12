@@ -56,7 +56,7 @@ namespace cotr.backend.Service.User
             if (await _userRepostory.GetUserByNicknameAsync(request.Nickname) != null) throw new ApiException(409, "El nombre de usuario ya existe");
             if (request.Birthdate > DateTime.Today.AddYears(-16)) throw new ApiException(409, "No puedes registrarte en la plataforma si eres menor de 16 años");
 
-            if (!PasswordRegex().IsMatch(request.Password)) throw new ApiException(409, "La contraseña no cumple con los requisitos de seguridad. Su longitud debe ser de mínimo 8 caracteres y debe al menos contener una letrá en mayúscula y números");
+            if (!PasswordRegex().IsMatch(request.Password)) throw new ApiException(409, "La contraseña no cumple con los requisitos de seguridad. Su longitud debe ser de mínimo 8 caracteres y debe al menos contener una letra en mayúscula y números");
 
             string token;
             do
@@ -84,7 +84,6 @@ namespace cotr.backend.Service.User
 
         public async Task UpdatePasswordAsync(UpdatePasswordRequest updatePassword)
         {
-            if (updatePassword.Token.Length < 15 || updatePassword.Token.Contains(" ")) throw new ApiException(409, "El token no es válido");
             UserCredential credentials = await _userRepostory.GetUserCredentialByResetToken(updatePassword.Token) ?? throw new ApiException(404, "No se ha encontrado un usuario asociado a ese token");
             if (DateTime.UtcNow > credentials.ResetTokenExpiration) throw new ApiException(401, "El token para realizar el cambio de cuenta ha expirado, solicite uno nuevo");
             if (!PasswordRegex().IsMatch(updatePassword.Password)) throw new ApiException(409, "La contraseña no cumple con los requisitos de seguridad. Su longitud debe ser de mínimo 8 caracteres y debe al menos contener una letrá en mayúscula y números");
@@ -128,7 +127,6 @@ namespace cotr.backend.Service.User
 
         public async Task VerifyEmailAsync(VerifyEmailRequest request)
         {
-            if (request.Token.Length < 15 || request.Token.Contains(" ")) throw new ApiException(409, "El token no es válido");
             Users user = await _userRepostory.GetUserByEmailToken(request.Token) ?? throw new ApiException(404, "No se ha encontrado un usuario asociado a ese token");
 
             user.EmailIsVerified = true;
@@ -141,6 +139,12 @@ namespace cotr.backend.Service.User
 
             credential.IsActive = true;
             await _userRepostory.UpdateCredentialsAsync(credential);
+        }
+
+        public async Task VerifyRefreshToken(int userId)
+        {
+            UserCredential credentials = await _userRepostory.GetUserCredentialByIdAsync(userId);
+            if (!credentials.IsActive) throw new ApiException(401, "Usuario bloqueado, para volver a acceder a la aplicación debe cambiar su contraseña");
         }
     }
 }

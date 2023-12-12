@@ -2,10 +2,10 @@
 
 namespace cotr.backend.Model.Tables
 {
-    public class Languajes
+    public class Languages
     {
         [Key]
-        public short LanguajeId { get; set; }
+        public short LanguageId { get; set; }
 
         [Required]
         [MaxLength(50)]
@@ -23,11 +23,11 @@ namespace cotr.backend.Model.Tables
         [MaxLength(1000)]
         public string TestStart { get; set; } = string.Empty;
 
-        public Languajes() { }
+        public Languages() { }
 
-        public Languajes(short languajeId, string name, string description, string codeStart, string testStart)
+        public Languages(short languageId, string name, string description, string codeStart, string testStart)
         {
-            LanguajeId = languajeId;
+            LanguageId = languageId;
             Name = name;
             Description = description;
             CodeStart = codeStart;

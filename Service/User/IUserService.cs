@@ -12,5 +12,6 @@ namespace cotr.backend.Service.User
         Task<EmailMessage> RecoverPasswordAsync(string email);
         Task<Users> GetUserInfoByIdAsync(int userId);
         Task VerifyEmailAsync(VerifyEmailRequest request);
+        Task VerifyRefreshToken(int userId);
     }
 }

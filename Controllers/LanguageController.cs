@@ -1,29 +1,29 @@
 ﻿using cotr.backend.Model;
 using cotr.backend.Model.Response;
-using cotr.backend.Service.Languaje;
+using cotr.backend.Service.Language;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cotr.backend.Controllers
 {
     [ApiController]
-    [Route("languajes")]
+    [Route("languages")]
     [Authorize(AuthenticationSchemes = "Access")]
-    public class LanguajeController : Controller
+    public class LanguageController : Controller
     {
-        private readonly ILanguajeService _languajeService;
+        private readonly ILanguageService _languageService;
 
-        public LanguajeController(ILanguajeService languajeService)
+        public LanguageController(ILanguageService languageService)
         {
-            _languajeService = languajeService;
+            _languageService = languageService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetLanguajesAsync()
+        public async Task<IActionResult> GetLanguagesAsync()
         {
             try
             {
-                return Ok(await _languajeService.GetLanguajesAsync());
+                return Ok(await _languageService.GetLanguagesAsync());
             }
             catch (ApiException ex)
             {
@@ -31,12 +31,12 @@ namespace cotr.backend.Controllers
             }
         }
 
-        [HttpGet("{languajeId}")]
-        public async Task<IActionResult> GetLanguajeByIdAsync(short languajeId)
+        [HttpGet("{languageId}")]
+        public async Task<IActionResult> GetLanguageByIdAsync(short languageId)
         {
             try
             {
-                return Ok(await _languajeService.GetLanguajeByIdAsync(languajeId));
+                return Ok(await _languageService.GetLanguageByIdAsync(languageId));
             }
             catch (ApiException ex)
             {

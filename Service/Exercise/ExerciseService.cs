@@ -10,12 +10,13 @@ using System.Text.RegularExpressions;
 
 namespace cotr.backend.Service.Exercise
 {
-    public class ExerciseService : IExerciseService
+    public partial class ExerciseService : IExerciseService
     {
         private readonly ICommandService _commandService;
         private readonly IExerciseRepository _exerciseRepository;
         private readonly IConfiguration _config;
         private readonly static string classPattern = @"public\s+class\s+(\w+)\s*{";
+        private readonly static string javascriptFail = @"\b([1-9]\d*)\s+failing\b";
         public ExerciseService(ICommandService commandService, IExerciseRepository exerciseRepository, IConfiguration config)
         {
             _commandService = commandService;
@@ -30,7 +31,7 @@ namespace cotr.backend.Service.Exercise
 
             if (statement != null) exercises = exercises.Where(x => x.Exercise.Statement.Contains(statement)).ToList();
             if (author != null) exercises = exercises.Where(x => x.Author.NickName.Contains(author)).ToList();
-            if (languajeId != null) exercises = exercises.Where(x => x.Languaje.LanguajeId.Equals(languajeId)).ToList();
+            if (languajeId != null) exercises = exercises.Where(x => x.Language.LanguageId.Equals(languajeId)).ToList();
             if (creatorId != null) exercises = exercises.Where(x => x.Author.UserId.Equals(creatorId)).ToList();
 
             return new(exercises);
@@ -39,7 +40,7 @@ namespace cotr.backend.Service.Exercise
         public async Task<Exercises> CreateNewExercise(int userId, CreateExerciseRequest request)
         {
             string className = "test";
-            if(request.LanguajeId == 1)
+            if(request.LanguageId == 1)
             {
                 Match match = Regex.Match(request.TestCode, classPattern);
 
@@ -47,7 +48,7 @@ namespace cotr.backend.Service.Exercise
                 className = match.Groups[1].Value;
             }
 
-            return await _exerciseRepository.SaveExerciseAsync(new(userId, request.LanguajeId, request.Statement, false, true, DateTime.UtcNow, request.TestCode, className));
+            return await _exerciseRepository.SaveExerciseAsync(new(userId, request.LanguageId, request.Statement, false, true, DateTime.UtcNow, request.TestCode, className));
         }
 
         public async Task TryExerciseAttemptAsync(int userId, long exerciseId, AttemptRequest request)
@@ -94,7 +95,7 @@ namespace cotr.backend.Service.Exercise
                 await _exerciseRepository.SaveAttemptAsync(new(userId, exerciseId, DateTime.UtcNow, false, request.Code, exec.Error));
                 throw new TryException("Fallo en el test", exec.Error);
             };
-            if (exec.Result.Contains("FAILURES!!!"))
+            if (exec.Result.Contains("FAILURES!!!") || Regex.IsMatch(exec.Result, javascriptFail))
             {
                 await _exerciseRepository.SaveAttemptAsync(new(userId, exerciseId, DateTime.UtcNow, false, request.Code, exec.Result));
                 throw new TryException("Fallo en el ejercicio", exec.Result);
@@ -106,8 +107,6 @@ namespace cotr.backend.Service.Exercise
                 exerciseInfo.IsAproved = true;
                 await _exerciseRepository.UpdateExerciseAsync(exerciseInfo);
             }
-
-            Directory.Delete(userExerciseRoute, true);
         }
 
         public async Task<ExerciseDataResponse> GetExerciseInfoByIdAsync(int userId, long exerciseId)
@@ -175,6 +174,16 @@ namespace cotr.backend.Service.Exercise
         {
 
             string codePath = $"{exerciseRoute}/test.js";
+
+            _commandService.ExecuteCommand("npm", "init -y", exerciseRoute);
+            _commandService.ExecuteCommand("npm", "install mocha chai sinon --save-dev", exerciseRoute);
+
+            string packageDocument = $"{exerciseRoute}/package.json";
+            string packageContent = await File.ReadAllTextAsync(packageDocument);
+
+            packageContent = packageContent.Replace("echo \\\"Error: no test specified\\\" && exit 1", "mocha");
+
+            await File.WriteAllTextAsync(packageDocument, packageContent);
 
             try
             {

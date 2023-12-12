@@ -6,13 +6,13 @@ namespace cotr.backend.Model.Response
     {
         public UserBasic Author { get; set; }
         public ExerciseBasic Exercise { get; set; }
-        public LanguajeBasic Languaje { get; set; }
+        public LanguageBasic Language { get; set; }
 
-        public ExerciseDataResponse(UserBasic author, ExerciseBasic exercise, LanguajeBasic languaje)
+        public ExerciseDataResponse(UserBasic author, ExerciseBasic exercise, LanguageBasic language)
         {
             Author = author;
             Exercise = exercise;
-            Languaje = languaje;
+            Language = language;
         }
     }
 }

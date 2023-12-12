@@ -1,14 +1,14 @@
 using cotr.backend.Data;
 using cotr.backend.Model;
 using cotr.backend.Repository.Exercise;
-using cotr.backend.Repository.Languaje;
+using cotr.backend.Repository.Language;
 using cotr.backend.Repository.User;
 using cotr.backend.Service.Command;
 using cotr.backend.Service.Email;
 using cotr.backend.Service.Encrypt;
 using cotr.backend.Service.Exercise;
 using cotr.backend.Service.Header;
-using cotr.backend.Service.Languaje;
+using cotr.backend.Service.Language;
 using cotr.backend.Service.Token;
 using cotr.backend.Service.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -35,12 +35,12 @@ builder.Services.AddTransient<IHeaderService, HeaderService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddTransient<IExerciseService, ExerciseService>();
 builder.Services.AddTransient<ICommandService, CommandService>();
-builder.Services.AddTransient<ILanguajeService, LanguajeService>();
+builder.Services.AddTransient<ILanguageService, LanguageService>();
 
 // Inyección de dependencias de repositorios
 builder.Services.AddScoped<IUserRepostory, UserRepository>();
 builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
-builder.Services.AddScoped<ILanguajeRepository, LanguajeReposiotry>();
+builder.Services.AddScoped<ILanguageRepository, LanguageReposiotry>();
 
 //Política de CORS
 builder.Services.AddCors(opt => opt.AddPolicy("AllowWebapp", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));

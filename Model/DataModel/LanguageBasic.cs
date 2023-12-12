@@ -1,14 +1,14 @@
 ﻿namespace cotr.backend.Model.DataModel
 {
-    public class LanguajeBasic
+    public class LanguageBasic
     {
-        public short LanguajeId { get; set; }
+        public short LanguageId { get; set; }
         public string Name { get; set; }
         public string CodeStart { get; set; }
 
-        public LanguajeBasic(short languajeId, string name, string codeStart)
+        public LanguageBasic(short languageId, string name, string codeStart)
         {
-            LanguajeId = languajeId;
+            LanguageId = languageId;
             Name = name;
             CodeStart = codeStart;
         }

@@ -3,22 +3,22 @@ using cotr.backend.Model;
 using cotr.backend.Model.Tables;
 using Microsoft.EntityFrameworkCore;
 
-namespace cotr.backend.Repository.Languaje
+namespace cotr.backend.Repository.Language
 {
-    public class LanguajeReposiotry : ILanguajeRepository
+    public class LanguageReposiotry : ILanguageRepository
     {
         private readonly CotrContext _context;
 
-        public LanguajeReposiotry(CotrContext context)
+        public LanguageReposiotry(CotrContext context)
         {
             _context = context;
         }
 
-        public async Task<List<Languajes>> GetLanguajesAsync()
+        public async Task<List<Languages>> GetLanguagesAsync()
         {
             try
             {
-                return await _context.Languajes.ToListAsync();
+                return await _context.Languages.ToListAsync();
             }
             catch(Exception ex)
             {
@@ -26,11 +26,11 @@ namespace cotr.backend.Repository.Languaje
             }
         }
 
-        public async Task<Languajes> GetLanguajeById(short languajeId)
+        public async Task<Languages> GetLanguageById(short languajeId)
         {
             try
             {
-                return await _context.Languajes.FirstOrDefaultAsync(x => x.LanguajeId.Equals(languajeId)) ?? throw new ApiException(404, "No se ha encontrado ese lenguaje de programación");
+                return await _context.Languages.FirstOrDefaultAsync(x => x.LanguageId.Equals(languajeId)) ?? throw new ApiException(404, "No se ha encontrado ese lenguaje de programación");
             }
             catch (Exception ex)
             {

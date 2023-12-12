@@ -136,7 +136,7 @@ namespace cotr.backend.Repository.User
         {
             try
             {
-                return await _context.UserCredential.FirstOrDefaultAsync(x => (x.ResetToken ?? "a").Equals(resetToken));
+                return await _context.UserCredential.FirstOrDefaultAsync(x => x.ResetToken != null && x.ResetToken.Equals(resetToken));
             }
             catch (Exception ex)
             {
@@ -162,7 +162,7 @@ namespace cotr.backend.Repository.User
         {
             try
             {
-                return await _context.Users.FirstOrDefaultAsync(x => (x.EmailToken ?? "a").Equals(emailToken));
+                return await _context.Users.FirstOrDefaultAsync(x => x.EmailToken != null && x.EmailToken.Equals(emailToken));
             }
             catch (Exception ex)
             {

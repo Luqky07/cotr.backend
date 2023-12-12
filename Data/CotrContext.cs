@@ -14,7 +14,7 @@ namespace cotr.backend.Data
         public DbSet<Members> Members { get; set; }
         public DbSet<Requests> Requests { get; set; }
         public DbSet<GroupUsersBlocked> GroupUsersBlocked { get; set; }
-        public DbSet<Languajes> Languajes { get; set; }
+        public DbSet<Languages> Languages { get; set; }
         public DbSet<Exercises> Exercises { get; set; }
         public DbSet<ExerciseResources> ExerciseResources { get; set; }
         public DbSet<UserExerciseAttempts> UserExerciseAttempts { get; set; }
@@ -38,8 +38,8 @@ namespace cotr.backend.Data
                 .HasKey(x => x.RequestId);
             modelBuilder.Entity<GroupUsersBlocked>()
                 .HasKey(x => x.BlockedId);
-            modelBuilder.Entity<Languajes>()
-                .HasKey(x => x.LanguajeId);
+            modelBuilder.Entity<Languages>()
+                .HasKey(x => x.LanguageId);
             modelBuilder.Entity<Exercises>()
                 .HasKey(x => x.ExerciseId);
             modelBuilder.Entity<ExerciseResources>()

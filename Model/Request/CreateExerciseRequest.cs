@@ -2,10 +2,10 @@
 {
     public class CreateExerciseRequest : EditExerciseRequest
     {
-        public short LanguajeId { get; set; }
+        public short LanguageId { get; set; }
         public CreateExerciseRequest(short languajeId, string statement, string testCode) : base(statement, testCode)
         {
-            LanguajeId = languajeId;
+            LanguageId = languajeId;
         }
     }
 }

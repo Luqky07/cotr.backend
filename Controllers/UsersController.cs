@@ -98,11 +98,13 @@ namespace cotr.backend.Controllers
             
         [HttpGet("access-token")]
         [Authorize(AuthenticationSchemes = "Refresh")]
-        public IActionResult AccessToken()
+        public async Task<IActionResult> GetAccessTokenAsync()
         {
             try
             {
                 int userId = _headerService.GetTokenSubUserId(HttpContext.Request.Headers);
+
+                await _userService.VerifyRefreshToken(userId);
 
                 return Ok(new TokenResponse(_tokenService.GetToken(userId, true)));
             }
@@ -112,13 +114,13 @@ namespace cotr.backend.Controllers
             }
         }
 
-        [HttpGet("profile/{userIdWanted}")]
+        [HttpGet("profile/{userId}")]
         [Authorize(AuthenticationSchemes = "Access")]
-        public async Task<IActionResult> GetProfileInfoByIdAsync(int userIdWanted)
+        public async Task<IActionResult> GetProfileInfoByIdAsync(int userId)
         {
             try
             {
-                return Ok(await _userService.GetUserInfoByIdAsync(userIdWanted));
+                return Ok(new ProfileResponse(await _userService.GetUserInfoByIdAsync(userId)));
             }
             catch (ApiException ex)
             {
