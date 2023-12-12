@@ -24,13 +24,13 @@ namespace cotr.backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetExercisesAsync(string? statement, string? author, short? languajeId, int? creatorId)
+        public async Task<IActionResult> GetExercisesAsync(string? statement, string? author, short? languageId, int? creatorId)
         {
             try
             {
                 int userId = _headerService.GetTokenSubUserId(Request.Headers);
 
-                return Ok(await _exerciseService.GetExercisesAsync(userId, statement, author, languajeId, creatorId));
+                return Ok(await _exerciseService.GetExercisesAsync(userId, statement, author, languageId, creatorId));
             }
             catch (ApiException ex)
             {
