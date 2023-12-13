@@ -80,11 +80,6 @@ namespace cotr.backend.Service.Exercise
                 throw new ApiException(500, ex.Message);
             }
 
-            Dictionary<short, Func<Task<CommandRun>>> functions = new()
-            {
-                {1, async () => await ExecuteJavaExerciseAsync(userExerciseRoute, request.Code, exerciseInfo.TestClassName, exerciseInfo.TestCode)}
-            };
-
             CommandRun exec;
             if (exerciseInfo.LanguageId == 1) exec = await ExecuteJavaExerciseAsync(userExerciseRoute, request.Code, exerciseInfo.TestClassName, exerciseInfo.TestCode);
             else if (exerciseInfo.LanguageId == 2) exec = await ExecuteJavaScriptExerciseAsync(userExerciseRoute, request.Code, exerciseInfo.TestCode);
@@ -137,6 +132,7 @@ namespace cotr.backend.Service.Exercise
 
             exercise.TestCode = request.TestCode;
             exercise.Statement = request.Statement;
+            exercise.IsAproved = false;
 
             await _exerciseRepository.UpdateExerciseAsync(exercise);
         }
