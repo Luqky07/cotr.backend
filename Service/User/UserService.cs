@@ -61,7 +61,7 @@ namespace cotr.backend.Service.User
             string token;
             do
             {
-                token = _secutiryService.RandomTokenRecoverPassword();
+                token = _secutiryService.RandomToken();
             } while (await _userRepostory.GetUserByEmailToken(token) != null);
 
             Users savedUser = await _userRepostory.SaveNewUserAsync(new(request.Nickname, request.Email, false, token, DateTime.Now.AddDays(3), request.Name, request.Surname, request.SecondSurname, request.Birthdate, request.Affiliation));
@@ -99,14 +99,14 @@ namespace cotr.backend.Service.User
             await _userRepostory.UpdateCredentialsAsync(credentials);
         }
 
-        public async Task<EmailMessage> RecoverPasswordAsync(string email)
+        public async Task<EmailMessage> EmailRecoverPasswordAsync(string email)
         {
             Users user = await _userRepostory.GetUserByEmailAsync(email) ?? throw new ApiException(404, "No se ha encontrado un usuario asociado a ese email");
 
             string token;
             do
             {
-                token = _secutiryService.RandomTokenRecoverPassword();
+                token = _secutiryService.RandomToken();
             } while (await _userRepostory.GetUserCredentialByResetToken(token) != null);
             UserCredential credential = await _userRepostory.GetUserCredentialByIdAsync(user.UserId);
 

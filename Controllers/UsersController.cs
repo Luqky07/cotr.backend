@@ -84,7 +84,7 @@ namespace cotr.backend.Controllers
         {
             try
             {
-                EmailMessage message = await _userService.RecoverPasswordAsync(request.Email);
+                EmailMessage message = await _userService.EmailRecoverPasswordAsync(request.Email);
 
                 await _emailService.SendEmailAsync(message);
 

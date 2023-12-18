@@ -58,12 +58,14 @@ namespace cotr.backend.Model.Tables
             Affiliation = affiliation;
         }
 
-        public Users(int userId, string nickname, string email, bool emailIsVerified,string name, string surname, string? secondSurname, DateTime birthdate, string? affiliation)
+        public Users(int userId, string nickname, string email, bool emailIsVerified, string? emailToken, DateTime? emailTokenExpiration, string name, string surname, string? secondSurname, DateTime birthdate, string? affiliation)
         {
             UserId = userId;
             Nickname = nickname;
             Email = email;
             EmailIsVerified = emailIsVerified;
+            EmailToken = emailToken;
+            EmailTokenExpiration = emailTokenExpiration;
             Name = name;
             Surname = surname;
             SecondSurname = secondSurname;

@@ -4,6 +4,6 @@
     {
         string EncryptPassword(string password);
         bool ValidatePassword(string password, string hashedPassword);
-        string RandomTokenRecoverPassword();
+        string RandomToken();
     }
 }

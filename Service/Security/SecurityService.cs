@@ -12,7 +12,7 @@
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
 
-        public string RandomTokenRecoverPassword()
+        public string RandomToken()
         {
             const string CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             Random random = new();
